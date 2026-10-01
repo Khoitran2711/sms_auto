@@ -152,15 +152,6 @@ export const UploadZone: React.FC<UploadZoneProps> = ({
                   chọn từ máy tính
                 </span>
               </p>
-              <div className="flex items-center justify-center gap-2 text-xs text-slate-500 dark:text-slate-400 mt-1">
-                <span>.xlsx, .xls, .csv</span>
-                <span>·</span>
-                {isLinkTab ? (
-                  <span>Cần 3 cột: <strong>HoTen</strong>, <strong>SoDT</strong>, <strong>Link goc</strong></span>
-                ) : (
-                  <span>Tự động nhận: Cột B (Họ tên), F (SĐT), H (Vaccine), I (Ngày hẹn)</span>
-                )}
-              </div>
             </div>
 
             {/* Secondary Utility Actions */}
