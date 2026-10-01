@@ -271,10 +271,9 @@ export default function App() {
 
       {/* Main Content Area */}
       <main className="flex-1 mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-8 py-5">
-        {/* Navigation Tabs */}
-        <div className="mb-5 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
-          {/* Segmented Navigation Tabs */}
-          <div className="inline-flex items-center p-1 rounded-xl bg-slate-200/70 dark:bg-[#121e33] border border-slate-300/80 dark:border-slate-800 shadow-inner">
+        {/* Navigation Tabs - Full Width matching Upload Zone & Centered */}
+        <div className="mb-5">
+          <div className="w-full grid grid-cols-1 sm:grid-cols-2 p-1.5 rounded-xl bg-slate-200/70 dark:bg-[#0e1726] border border-slate-300/80 dark:border-slate-800 shadow-2xs gap-1.5 sm:gap-2">
             {/* Tab 1: Rút gọn link & Chuẩn hóa SĐT */}
             <button
               type="button"
@@ -282,7 +281,7 @@ export default function App() {
                 setActiveTab('link');
                 setCarrierFilter('all');
               }}
-              className={`flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer ${
+              className={`w-full flex items-center justify-center gap-2 py-3 px-4 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer ${
                 activeTab === 'link'
                   ? 'bg-white dark:bg-[#1a2942] text-blue-600 dark:text-blue-400 shadow-sm border border-slate-200/80 dark:border-slate-700 font-bold'
                   : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/40 dark:hover:bg-slate-800/50'
@@ -304,14 +303,14 @@ export default function App() {
                 setActiveTab('vaccine');
                 setCarrierFilter('all');
               }}
-              className={`flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer ${
+              className={`w-full flex items-center justify-center gap-2 py-3 px-4 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer ${
                 activeTab === 'vaccine'
                   ? 'bg-white dark:bg-[#1a2942] text-emerald-600 dark:text-emerald-400 shadow-sm border border-slate-200/80 dark:border-slate-700 font-bold'
                   : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/40 dark:hover:bg-slate-800/50'
               }`}
             >
               <Syringe className={`h-4 w-4 shrink-0 ${activeTab === 'vaccine' ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400'}`} />
-              <span>Xử lý tiêm chủng Vaccine (4 cột SMS)</span>
+              <span>Xử lý tiêm chủng Vaccine</span>
               {vaccineItems.length > 0 && (
                 <span className="shrink-0 px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300 font-mono">
                   {vaccineItems.length}
