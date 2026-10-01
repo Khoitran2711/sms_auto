@@ -385,9 +385,6 @@ export const VaccineTab: React.FC<VaccineTabProps> = ({
         <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white">
           Chưa có dữ liệu danh sách Tiêm chủng Vaccine
         </h3>
-        <p className="mt-2 text-xs sm:text-sm text-slate-500 dark:text-slate-400 max-w-lg mx-auto leading-relaxed">
-          Vui lòng tải lên file báo cáo tiêm chủng chứa các cột <span className="font-mono text-xs font-semibold text-slate-700 dark:text-slate-300">Họ tên</span>, <span className="font-mono text-xs font-semibold text-slate-700 dark:text-slate-300">Điện thoại</span>, <span className="font-mono text-xs font-semibold text-slate-700 dark:text-slate-300">Vaccine</span>, và <span className="font-mono text-xs font-semibold text-slate-700 dark:text-slate-300">Ngày tái khám</span> ở phía trên.
-        </p>
       </div>
     );
   }
