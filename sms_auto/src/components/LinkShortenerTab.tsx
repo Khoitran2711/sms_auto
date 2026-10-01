@@ -475,9 +475,6 @@ export const LinkShortenerTab: React.FC<LinkShortenerTabProps> = ({
         <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white">
           Chưa có dữ liệu danh sách Link
         </h3>
-        <p className="mt-2 text-xs sm:text-sm text-slate-500 dark:text-slate-400 max-w-lg mx-auto leading-relaxed">
-          Vui lòng tải lên file Excel chứa các cột <span className="font-mono text-xs font-semibold text-slate-700 dark:text-slate-300">HoTen</span>, <span className="font-mono text-xs font-semibold text-slate-700 dark:text-slate-300">SoDT</span>, và <span className="font-mono text-xs font-semibold text-slate-700 dark:text-slate-300">Link goc</span> ở phía trên hoặc nhấn nút "Nạp dữ liệu mẫu".
-        </p>
       </div>
     );
   }
