@@ -69,7 +69,7 @@ export const UploadZone: React.FC<UploadZoneProps> = ({
   const isLinkTab = activeTab === 'link';
 
   return (
-    <div className="rounded-xl border border-slate-200/90 bg-white p-4 shadow-2xs dark:border-slate-800 dark:bg-slate-900 transition-colors">
+    <div className="rounded-xl border border-slate-200/90 bg-white p-3 sm:p-4 shadow-2xs dark:border-slate-800 dark:bg-[#0e1726] transition-colors">
       <input
         ref={inputRef}
         type="file"
@@ -85,12 +85,12 @@ export const UploadZone: React.FC<UploadZoneProps> = ({
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
         onClick={() => !isProcessing && inputRef.current?.click()}
-        className={`relative flex flex-col items-center justify-center text-center rounded-lg border border-dashed py-6 px-4 sm:px-6 cursor-pointer transition-colors ${
+        className={`relative flex flex-col items-center justify-center text-center rounded-lg border border-dashed py-8 sm:py-10 px-4 sm:px-6 cursor-pointer transition-colors ${
           isDragOver
             ? 'border-blue-500 bg-blue-50/50 dark:bg-blue-950/30'
             : fileName
             ? 'border-emerald-300 dark:border-emerald-800 bg-emerald-50/20 dark:bg-emerald-950/10'
-            : 'border-slate-300 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/40 hover:bg-slate-50 dark:hover:bg-slate-800/70 hover:border-slate-400'
+            : 'border-slate-300 dark:border-slate-800 bg-slate-50/50 dark:bg-[#121e33]/50 hover:bg-slate-50 dark:hover:bg-[#121e33]/80 hover:border-slate-400 dark:hover:border-slate-700'
         }`}
       >
         {fileName ? (
