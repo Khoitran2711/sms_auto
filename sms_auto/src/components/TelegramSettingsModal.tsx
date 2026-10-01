@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { TelegramConfig, testTelegramConnection } from '../utils/telegram';
-import { Bot, Send, CheckCircle2, AlertCircle, X, Shield, HelpCircle, Loader2 } from 'lucide-react';
+import { Bot, Send, CheckCircle2, AlertCircle, X, Loader2, Eye, EyeOff, Lock } from 'lucide-react';
 
 interface TelegramSettingsModalProps {
   isOpen: boolean;
@@ -17,8 +17,19 @@ export const TelegramSettingsModal: React.FC<TelegramSettingsModalProps> = ({
 }) => {
   const [botToken, setBotToken] = useState(config.botToken || '');
   const [chatId, setChatId] = useState(config.chatId || '');
+  const [showChatId, setShowChatId] = useState(false);
   const [isTesting, setIsTesting] = useState(false);
   const [testResult, setTestResult] = useState<{ ok: boolean; message: string } | null>(null);
+
+  // Cập nhật state mỗi khi mở modal hoặc config thay đổi để luôn nạp đúng thông tin đã lưu
+  useEffect(() => {
+    if (isOpen) {
+      setBotToken(config.botToken || '');
+      setChatId(config.chatId || '');
+      setTestResult(null);
+      setShowChatId(false);
+    }
+  }, [isOpen, config]);
 
   if (!isOpen) return null;
 
@@ -65,13 +76,17 @@ export const TelegramSettingsModal: React.FC<TelegramSettingsModalProps> = ({
       >
         {/* Header */}
         <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 px-5 py-4 bg-slate-50/50 dark:bg-slate-900/50">
-          <div className="flex items-center gap-2.5">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-sky-50 text-sky-600 dark:bg-sky-950/60 dark:text-sky-400">
+          <div className="flex items-center gap-3">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-sky-500/10 text-sky-600 dark:text-sky-400">
               <Bot className="h-5 w-5" />
             </div>
             <div>
-              <h3 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white">
-                Cấu hình Bot Telegram gửi tin tự động
+              <h3 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                <span>Cấu hình Bot Telegram gửi tin tự động</span>
+                <span className="inline-flex items-center gap-1 text-[11px] font-normal text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 px-2 py-0.5 rounded-full">
+                  <Lock className="h-3 w-3" />
+                  Bảo mật
+                </span>
               </h3>
               <p className="text-xs text-slate-500 dark:text-slate-400">
                 Tự động gửi /gui, mã mẫu, file 1-4.xlsx và /done
@@ -89,46 +104,67 @@ export const TelegramSettingsModal: React.FC<TelegramSettingsModalProps> = ({
 
         {/* Body */}
         <div className="p-5 space-y-4">
-          <div className="p-3 bg-sky-50/60 dark:bg-sky-950/30 border border-sky-100 dark:border-sky-900/60 rounded-xl text-xs text-sky-800 dark:text-sky-300 space-y-1">
-            <div className="font-semibold flex items-center gap-1.5">
-              <Shield className="h-3.5 w-3.5" />
-              <span>Quy trình tự động hóa đã được thiết lập sẵn:</span>
-            </div>
-            <p className="text-[11px] leading-relaxed text-sky-700 dark:text-sky-400 pl-5">
-              Khi bấm gửi, hệ thống tự động: Gửi lệnh <code className="bg-sky-100 dark:bg-sky-900 px-1 rounded font-mono">/gui</code> ➔ gửi số chọn mẫu (<code className="bg-sky-100 dark:bg-sky-900 px-1 rounded font-mono">1</code> hoặc <code className="bg-sky-100 dark:bg-sky-900 px-1 rounded font-mono">2</code>) ➔ gửi lần lượt 4 file <code className="bg-sky-100 dark:bg-sky-900 px-1 rounded font-mono">1.xlsx, 2.xlsx, 3.xlsx, 4.xlsx</code> ➔ gửi lệnh kết thúc <code className="bg-sky-100 dark:bg-sky-900 px-1 rounded font-mono">/done</code>.
-            </p>
-          </div>
-
+          {/* Bot Token Input */}
           <div>
             <label className="block text-xs font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
               Telegram Bot Token <span className="text-rose-500">*</span>
             </label>
             <input
-              type="text"
+              type="password"
               value={botToken}
               onChange={(e) => setBotToken(e.target.value)}
-              placeholder="VD: 7123456789:AAFx... từ @BotFather"
+              placeholder="VD: 7123456789:AAFx..."
+              autoComplete="off"
+              spellCheck="false"
               className="w-full px-3 py-2 text-xs font-mono rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-sky-500"
             />
-            <p className="mt-1 text-[11px] text-slate-500 dark:text-slate-400">
-              Lấy token từ tài khoản Bot của bạn (hoặc tạo bot mới qua <a href="https://t.me/BotFather" target="_blank" rel="noreferrer" className="text-sky-600 underline">@BotFather</a>).
-            </p>
           </div>
 
+          {/* Chat ID Input */}
           <div>
-            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-200 mb-1.5">
-              Chat ID hoặc Group ID nhận file <span className="text-rose-500">*</span>
-            </label>
-            <input
-              type="text"
-              value={chatId}
-              onChange={(e) => setChatId(e.target.value)}
-              placeholder="VD: 123456789 hoặc -100123456789"
-              className="w-full px-3 py-2 text-xs font-mono rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-sky-500"
-            />
-            <p className="mt-1 text-[11px] text-slate-500 dark:text-slate-400">
-              Nhắn tin bất kỳ cho bot rồi xem ID qua <a href="https://t.me/userinfobot" target="_blank" rel="noreferrer" className="text-sky-600 underline">@userinfobot</a> hoặc thêm bot vào nhóm cấp quyền admin.
-            </p>
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="text-xs font-semibold text-slate-700 dark:text-slate-200">
+                Chat ID hoặc Group ID nhận file <span className="text-rose-500">*</span>
+              </label>
+              {chatId && (
+                <button
+                  type="button"
+                  onClick={() => setShowChatId(!showChatId)}
+                  className="inline-flex items-center gap-1 text-[11px] font-medium text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 transition-colors cursor-pointer"
+                >
+                  {showChatId ? (
+                    <>
+                      <EyeOff className="h-3.5 w-3.5" />
+                      <span>Ẩn ID (••••)</span>
+                    </>
+                  ) : (
+                    <>
+                      <Eye className="h-3.5 w-3.5" />
+                      <span>Hiện ID</span>
+                    </>
+                  )}
+                </button>
+              )}
+            </div>
+            <div className="relative">
+              <input
+                type={showChatId ? 'text' : 'password'}
+                value={chatId}
+                onChange={(e) => setChatId(e.target.value)}
+                placeholder="VD: 123456789 hoặc -100123456789"
+                autoComplete="off"
+                spellCheck="false"
+                className="w-full pr-10 pl-3 py-2 text-xs font-mono rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-sky-500"
+              />
+              <button
+                type="button"
+                onClick={() => setShowChatId(!showChatId)}
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 cursor-pointer"
+                title={showChatId ? 'Ẩn ký tự (*)' : 'Xem ký tự'}
+              >
+                {showChatId ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
+            </div>
           </div>
 
           {/* Test connection alert */}
