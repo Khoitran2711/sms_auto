@@ -443,32 +443,6 @@ export const VaccineTab: React.FC<VaccineTabProps> = ({
             <span>Tự động chuẩn hóa lại</span>
           </button>
 
-          {/* Toggle format: SMS non-accent vs Original */}
-          <div className="flex items-center gap-1 rounded-lg bg-slate-100 dark:bg-slate-800 p-0.5 text-xs border border-slate-200/80 dark:border-slate-700">
-            <button
-              type="button"
-              onClick={() => setShowSMSFormat(true)}
-              className={`px-3 py-1.5 rounded-md font-semibold transition-all cursor-pointer ${
-                showSMSFormat
-                  ? 'bg-[#008c46] text-white shadow-xs dark:bg-emerald-600 dark:text-white scale-[1.02]'
-                  : 'text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'
-              }`}
-            >
-              Chuẩn SMS (Không dấu)
-            </button>
-            <button
-              type="button"
-              onClick={() => setShowSMSFormat(false)}
-              className={`px-3 py-1.5 rounded-md font-semibold transition-all cursor-pointer ${
-                !showSMSFormat
-                  ? 'bg-[#008c46] text-white shadow-xs dark:bg-emerald-600 dark:text-white scale-[1.02]'
-                  : 'text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'
-              }`}
-            >
-              Bản gốc (Có dấu)
-            </button>
-          </div>
-
           {hasActiveFilters && (
             <button
               type="button"
@@ -499,17 +473,6 @@ export const VaccineTab: React.FC<VaccineTabProps> = ({
             <span>{isSendingTelegram ? 'Đang gửi tin nhắn...' : 'Gửi tin nhắn tự động'}</span>
           </button>
 
-          {/* Download 4 separate files directly */}
-          <button
-            type="button"
-            onClick={handleDownloadSeparateFiles}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-indigo-700 dark:text-indigo-300 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/60 dark:hover:bg-indigo-900/60 border border-indigo-200 dark:border-indigo-800 rounded-md transition-colors cursor-pointer shadow-2xs"
-            title="Tự động tải về 4 file rời 1.xlsx, 2.xlsx, 3.xlsx, 4.xlsx cùng lúc mà không cần giải nén ZIP"
-          >
-            <Download className="h-3.5 w-3.5" />
-            <span>Tải 4 file rời (1, 2, 3, 4.xlsx)</span>
-          </button>
-
           {/* Export ZIP with SMS naming convention */}
           <button
             type="button"
@@ -519,17 +482,6 @@ export const VaccineTab: React.FC<VaccineTabProps> = ({
           >
             <Archive className="h-3.5 w-3.5" />
             <span>Xuất file ZIP (1, 2, 3, 4.xlsx)</span>
-          </button>
-
-          {/* Export Excel Full */}
-          <button
-            type="button"
-            onClick={handleExportExcel}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slate-700 dark:text-slate-300 bg-white hover:bg-slate-50 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-md transition-colors cursor-pointer border border-slate-200 dark:border-slate-700"
-            title="Xuất danh sách gồm đúng 4 cột: Số điện thoại, Họ tên, Vaccine, Ngày tái khám"
-          >
-            <Download className="h-3.5 w-3.5" />
-            <span className="hidden sm:inline">Xuất Excel tổng</span>
           </button>
         </div>
       </div>
@@ -575,14 +527,10 @@ export const VaccineTab: React.FC<VaccineTabProps> = ({
                   </button>
                 </th>
                 <th className="w-12 px-2 py-2.5 text-center font-mono">STT</th>
-                <th className="min-w-[180px] px-3 py-2.5">
-                  {showSMSFormat ? 'Họ tên (Chuẩn SMS)' : 'Họ tên (Bản gốc)'}
-                </th>
+                <th className="min-w-[180px] px-3 py-2.5">Họ tên (Chuẩn SMS)</th>
                 <th className="min-w-[150px] px-3 py-2.5">Số điện thoại (đầu 84)</th>
                 <th className="min-w-[130px] px-3 py-2.5">Nhà mạng</th>
-                <th className="min-w-[220px] px-3 py-2.5">
-                  {showSMSFormat ? 'Vaccine (Không dấu, phẩy)' : 'Vaccine (Bản gốc)'}
-                </th>
+                <th className="min-w-[220px] px-3 py-2.5">Vaccine (Chuẩn SMS)</th>
                 <th className="min-w-[120px] px-3 py-2.5">Ngày tái khám</th>
                 <th className="min-w-[110px] px-3 py-2.5 text-center">Trạng thái</th>
               </tr>
