@@ -1,5 +1,5 @@
 import React from 'react';
-import { Sun, Moon, ExternalLink, Activity, ShieldCheck, Bot } from 'lucide-react';
+import { Sun, Moon, Bot } from 'lucide-react';
 
 interface HeaderProps {
   darkMode: boolean;
@@ -83,19 +83,6 @@ export const Header: React.FC<HeaderProps> = ({
               {isProcessing ? 'Đang thực thi' : 'Sẵn sàng'}
             </span>
           </div>
-
-          {/* Quick link to VNPT SMS Portal */}
-          <a
-            href="https://ads-new.vinaphone.com.vn/Agent/Login.aspx"
-            target="_blank"
-            rel="noopener noreferrer"
-            title="Đăng nhập cổng gửi tin SMS Brandname VNPT"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slate-700 dark:text-slate-200 hover:text-blue-700 dark:hover:text-blue-400 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md transition-colors shadow-2xs"
-          >
-            <ShieldCheck className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
-            <span className="hidden md:inline">Cổng SMS VNPT</span>
-            <ExternalLink className="h-3 w-3 opacity-60" />
-          </a>
 
           {/* Theme toggle */}
           <button
