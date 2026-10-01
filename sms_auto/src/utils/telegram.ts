@@ -255,7 +255,7 @@ export async function executeTelegramAutoWorkflow(
 
   onProgress({
     step: 'completed',
-    message: `Đã gửi thành công ${total} file Excel vào group chat!`,
+    message: 'Gửi tin nhắn tự động thành công!',
     percent: 100,
   });
 }
