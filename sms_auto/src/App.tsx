@@ -271,7 +271,7 @@ export default function App() {
 
       {/* Main Content Area */}
       <main className="flex-1 mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-8 py-5">
-        {/* Navigation Tabs and Quick Indicators Row */}
+        {/* Navigation Tabs */}
         <div className="mb-5 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
           {/* Segmented Navigation Tabs */}
           <div className="inline-flex items-center p-1 rounded-xl bg-slate-200/70 dark:bg-[#121e33] border border-slate-300/80 dark:border-slate-800 shadow-inner">
@@ -318,19 +318,6 @@ export default function App() {
                 </span>
               )}
             </button>
-          </div>
-
-          {/* Quick Specifications Tag Info like in screenshot */}
-          <div className="flex items-center gap-2 text-xs">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-blue-200 dark:border-blue-900/60 bg-blue-50/70 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300">
-              <span className="text-slate-500 dark:text-slate-400">Đầu số chuẩn hóa:</span>
-              <strong className="font-mono text-blue-600 dark:text-blue-400 font-semibold">84xxxxxxxxx</strong>
-            </div>
-            <span className="text-slate-400 dark:text-slate-600">·</span>
-            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#121e33] text-slate-700 dark:text-slate-300">
-              <span className="text-slate-500 dark:text-slate-400">Phân luồng:</span>
-              <strong className="text-slate-900 dark:text-white font-semibold">Vina, Mobi, Viettel, VNM</strong>
-            </div>
           </div>
         </div>
 
