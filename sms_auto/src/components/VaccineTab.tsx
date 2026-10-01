@@ -302,9 +302,9 @@ export const VaccineTab: React.FC<VaccineTabProps> = ({
 
       addToast({
         type: 'success',
-        title: 'Đã gửi toàn bộ sang Bot Telegram!',
-        message: `Đã tự động gửi /gui ➔ mẫu 2 (Vaccine) ➔ ${filesToSend.length} file Excel ➔ /done thành công!`,
-        duration: 7000,
+        title: 'Đã gửi file sang Bot Telegram!',
+        message: `Đã gửi thành công ${filesToSend.length} file Excel (1, 2, 3, 4.xlsx) vào nhóm chat Telegram!`,
+        duration: 5000,
       });
     } catch (err: any) {
       setTelegramProgress({
@@ -489,7 +489,7 @@ export const VaccineTab: React.FC<VaccineTabProps> = ({
             onClick={handleSendTelegram}
             disabled={isSendingTelegram || items.length === 0}
             className="flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold text-white bg-sky-600 hover:bg-sky-500 active:bg-sky-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-md transition-all shadow-xs cursor-pointer"
-            title="Tự động kết nối Bot Telegram: gửi /gui ➔ chọn mẫu 2 (Vaccine) ➔ gửi 4 file Excel ➔ gửi /done"
+            title="Gửi trực tiếp các file Excel theo mạng (1.xlsx, 2.xlsx, 3.xlsx, 4.xlsx) sang Telegram"
           >
             {isSendingTelegram ? (
               <Loader2 className="h-3.5 w-3.5 animate-spin" />
