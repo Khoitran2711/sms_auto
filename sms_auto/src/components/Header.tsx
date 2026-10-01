@@ -17,8 +17,8 @@ export const Header: React.FC<HeaderProps> = ({
   telegramConfigured = false,
 }) => {
   return (
-    <header className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/95 backdrop-blur-sm dark:border-slate-800/80 dark:bg-slate-900/95 transition-colors">
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-2.5 sm:px-6">
+    <header className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/95 backdrop-blur-sm dark:border-slate-800/80 dark:bg-[#0e1726]/95 transition-colors">
+      <div className="mx-auto flex w-full max-w-[1600px] items-center justify-between px-4 sm:px-6 lg:px-8 py-3">
         {/* Brand identity */}
         <div className="flex items-center gap-3">
           <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-white p-0.5 border border-slate-200/90 dark:border-slate-700 shadow-2xs overflow-hidden">
