@@ -468,15 +468,15 @@ export const LinkShortenerTab: React.FC<LinkShortenerTabProps> = ({
 
   if (items.length === 0) {
     return (
-      <div className="rounded-2xl border border-dashed border-slate-300 p-12 text-center dark:border-slate-800">
-        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 mb-3">
-          <Link2 className="h-7 w-7" />
+      <div className="rounded-2xl border border-slate-200/90 dark:border-slate-800/90 bg-white dark:bg-[#0e1726] p-12 sm:p-16 text-center shadow-2xs">
+        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 mb-4 border border-blue-200/60 dark:border-blue-900/50">
+          <Link2 className="h-8 w-8" />
         </div>
-        <h3 className="text-base font-semibold text-slate-800 dark:text-slate-200">
+        <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white">
           Chưa có dữ liệu danh sách Link
         </h3>
-        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400 max-w-md mx-auto">
-          Vui lòng tải lên file Excel chứa các cột <span className="font-mono text-xs font-semibold">HoTen</span>, <span className="font-mono text-xs font-semibold">SoDT</span>, và <span className="font-mono text-xs font-semibold">Link goc</span> ở phía trên hoặc nhấn nút "Thử ngay dữ liệu mẫu".
+        <p className="mt-2 text-xs sm:text-sm text-slate-500 dark:text-slate-400 max-w-lg mx-auto leading-relaxed">
+          Vui lòng tải lên file Excel chứa các cột <span className="font-mono text-xs font-semibold text-slate-700 dark:text-slate-300">HoTen</span>, <span className="font-mono text-xs font-semibold text-slate-700 dark:text-slate-300">SoDT</span>, và <span className="font-mono text-xs font-semibold text-slate-700 dark:text-slate-300">Link goc</span> ở phía trên hoặc nhấn nút "Nạp dữ liệu mẫu".
         </p>
       </div>
     );
