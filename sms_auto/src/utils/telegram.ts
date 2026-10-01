@@ -6,7 +6,7 @@ export interface TelegramConfig {
 }
 
 export interface TelegramSendProgress {
-  step: 'idle' | 'testing' | 'command_gui' | 'command_option' | 'sending_files' | 'command_done' | 'completed' | 'error';
+  step: 'idle' | 'testing' | 'sending_files' | 'completed' | 'error';
   message: string;
   percent: number;
   currentFileIndex?: number;
@@ -29,7 +29,7 @@ async function parseApiResponse(res: Response): Promise<any> {
 }
 
 /**
- * Fallback trực tiếp gọi Telegram API từ Client nếu API serverless bị lỗi hoặc chặn
+ * Kiểm tra danh tính Bot Telegram (getMe)
  */
 async function directTelegramGetMe(botToken: string): Promise<{ ok: boolean; botName?: string; error?: string }> {
   try {
@@ -44,6 +44,9 @@ async function directTelegramGetMe(botToken: string): Promise<{ ok: boolean; bot
   }
 }
 
+/**
+ * Gửi tin nhắn text trực tiếp
+ */
 async function directTelegramSendMessage(botToken: string, chatId: string, text: string): Promise<boolean> {
   const res = await fetch(`https://api.telegram.org/bot${botToken.trim()}/sendMessage`, {
     method: 'POST',
@@ -60,6 +63,9 @@ async function directTelegramSendMessage(botToken: string, chatId: string, text:
   return true;
 }
 
+/**
+ * Gửi file document trực tiếp
+ */
 async function directTelegramSendDocument(
   botToken: string,
   chatId: string,
@@ -95,7 +101,7 @@ async function directTelegramSendDocument(
 }
 
 /**
- * Kiểm tra kết nối Telegram (Ưu tiên gọi /api/telegram/test, nếu serverless lỗi tự động fallback sang client fetch)
+ * Kiểm tra kết nối Telegram
  */
 export async function testTelegramConnection(
   botToken: string,
@@ -104,7 +110,7 @@ export async function testTelegramConnection(
   const token = botToken.trim();
   const targetChatId = chatId ? chatId.trim() : undefined;
 
-  // 1. Thử gọi API backend (/api/telegram/test)
+  // 1. Thử gọi backend /api/telegram/test
   try {
     const res = await fetch('/api/telegram/test', {
       method: 'POST',
@@ -121,10 +127,10 @@ export async function testTelegramConnection(
       };
     }
   } catch (err) {
-    // Backend không khả dụng hoặc lỗi Vercel -> Fallback sang Client fetch
+    // Fallback client
   }
 
-  // 2. Client Fallback (gọi trực tiếp api.telegram.org)
+  // 2. Client fallback
   const clientCheck = await directTelegramGetMe(token);
   if (!clientCheck.ok) {
     return { ok: false, error: clientCheck.error };
@@ -136,7 +142,7 @@ export async function testTelegramConnection(
       await directTelegramSendMessage(
         token,
         targetChatId,
-        `✅ [BVĐK Ninh Thuận - SMS Gateway]\nKết nối thành công với Bot @${clientCheck.botName}!\nHệ thống sẵn sàng gửi file tự động.`
+        `✅ [BVĐK Ninh Thuận - SMS Gateway]\nKết nối thành công với Bot @${clientCheck.botName}!`
       );
       pingSuccess = true;
     } catch (e) {
@@ -152,10 +158,9 @@ export async function testTelegramConnection(
 }
 
 /**
- * Gửi tin nhắn text (như /gui, '1', '2', /done)
+ * Gửi tin nhắn text
  */
 export async function sendTelegramMessage(config: TelegramConfig, text: string): Promise<boolean> {
-  // Thử qua backend
   try {
     const res = await fetch('/api/telegram/send-message', {
       method: 'POST',
@@ -172,7 +177,6 @@ export async function sendTelegramMessage(config: TelegramConfig, text: string):
     // Fallback client
   }
 
-  // Client fallback
   return await directTelegramSendMessage(config.botToken, config.chatId, text);
 }
 
@@ -185,7 +189,6 @@ export async function sendTelegramDocument(
   fileBase64: string,
   caption?: string
 ): Promise<boolean> {
-  // Thử qua backend
   try {
     const res = await fetch('/api/telegram/send-document', {
       method: 'POST',
@@ -204,16 +207,13 @@ export async function sendTelegramDocument(
     // Fallback client
   }
 
-  // Client fallback
   return await directTelegramSendDocument(config.botToken, config.chatId, fileName, fileBase64, caption);
 }
 
 /**
- * Quy trình tự động gửi sang Bot Telegram:
- * Bước 1: Gửi lệnh '/gui'
- * Bước 2: Gửi lựa chọn mẫu ('1' cho Rút gọn link, '2' cho Vaccine)
- * Bước 3: Gửi lần lượt 4 file Excel 1.xlsx, 2.xlsx, 3.xlsx, 4.xlsx
- * Bước 4: Gửi lệnh kết thúc '/done'
+ * Quy trình gửi file sang Bot Telegram:
+ * CHỈ GỬI DUY NHẤT CÁC FILE EXCEL ĐÍNH KÈM (1.xlsx, 2.xlsx, 3.xlsx, 4.xlsx)
+ * Tuyệt đối không gửi các lệnh dư thừa như /gui, số 1, 2, hay /done.
  */
 export async function executeTelegramAutoWorkflow(
   config: TelegramConfig,
@@ -229,68 +229,33 @@ export async function executeTelegramAutoWorkflow(
     throw new Error('Không có file dữ liệu nào để gửi.');
   }
 
-  // 1. Kiểm tra bot
-  onProgress({
-    step: 'testing',
-    message: 'Đang kiểm tra kết nối với Bot Telegram...',
-    percent: 10,
-  });
-  const testRes = await testTelegramConnection(config.botToken, config.chatId);
-  if (!testRes.ok) {
-    throw new Error(testRes.error || 'Kết nối Bot thất bại');
-  }
-
-  // 2. Gửi lệnh /gui
-  onProgress({
-    step: 'command_gui',
-    message: 'Đang gửi lệnh kích hoạt /gui...',
-    percent: 25,
-  });
-  await sendTelegramMessage(config, '/gui');
-  await new Promise((r) => setTimeout(r, 800));
-
-  // 3. Gửi lựa chọn mẫu: 1 = Rút gọn Link, 2 = Vaccine
-  onProgress({
-    step: 'command_option',
-    message: `Đang gửi mã lựa chọn mẫu tin: "${type === 'link' ? '1 (Link)' : '2 (Vaccine)'}"...`,
-    percent: 35,
-  });
-  await sendTelegramMessage(config, type === 'link' ? '1' : '2');
-  await new Promise((r) => setTimeout(r, 800));
-
-  // 4. Gửi lần lượt từng file Excel (1, 2, 3, 4.xlsx)
   const total = files.length;
+
+  // Gửi trực tiếp từng file Excel (1.xlsx, 2.xlsx, 3.xlsx, 4.xlsx)
   for (let i = 0; i < total; i++) {
     const file = files[i];
-    const filePercent = 40 + Math.round(((i + 1) / total) * 45);
+    const filePercent = Math.round(((i + 1) / total) * 100);
 
     onProgress({
       step: 'sending_files',
-      message: `Đang tải lên file ${file.name} (${file.carrier}) (${i + 1}/${total})...`,
-      percent: filePercent,
+      message: `Đang gửi file ${file.name} (${file.carrier}) (${i + 1}/${total})...`,
+      percent: Math.min(filePercent, 95),
       currentFileIndex: i + 1,
       totalFiles: total,
     });
 
-    const caption = `📁 File ${file.name} - Mạng ${file.carrier} (${type === 'link' ? 'Rút gọn link' : 'Tiêm chủng vaccine'})`;
+    const caption = `📁 ${file.name} - ${file.carrier} (${type === 'link' ? 'Rút gọn link' : 'Tiêm chủng vắc xin'})`;
     await sendTelegramDocument(config, file.name, file.base64, caption);
 
-    // Giữ nhịp độ tránh bị Telegram rate limit
-    await new Promise((r) => setTimeout(r, 1000));
+    // Chờ 800ms giữa các file để tránh bị Telegram rate limit
+    if (i < total - 1) {
+      await new Promise((r) => setTimeout(r, 800));
+    }
   }
-
-  // 5. Gửi lệnh /done hoàn tất
-  onProgress({
-    step: 'command_done',
-    message: 'Đang gửi lệnh kết thúc /done...',
-    percent: 90,
-  });
-  await sendTelegramMessage(config, '/done');
-  await new Promise((r) => setTimeout(r, 500));
 
   onProgress({
     step: 'completed',
-    message: `Đã gửi thành công toàn bộ ${total} file và hoàn tất quy trình qua Bot Telegram!`,
+    message: `Đã gửi thành công ${total} file Excel vào group chat!`,
     percent: 100,
   });
 }
