@@ -397,8 +397,8 @@ export const LinkShortenerTab: React.FC<LinkShortenerTabProps> = ({
 
       addToast({
         type: 'success',
-        title: 'Đã gửi file sang Bot Telegram!',
-        message: `Đã gửi thành công ${filesToSend.length} file Excel (1, 2, 3, 4.xlsx) vào nhóm chat Telegram!`,
+        title: 'Gửi tin nhắn tự động thành công',
+        message: 'Hệ thống đã gửi toàn bộ dữ liệu file thành công vào nhóm chat Telegram!',
         duration: 5000,
       });
     } catch (err: any) {
@@ -612,7 +612,7 @@ export const LinkShortenerTab: React.FC<LinkShortenerTabProps> = ({
             ) : (
               <Send className="h-3.5 w-3.5" />
             )}
-            <span>{isSendingTelegram ? 'Đang gửi sang Bot...' : 'Bắn sang Bot Telegram'}</span>
+            <span>{isSendingTelegram ? 'Đang gửi tin nhắn...' : 'Gửi tin nhắn tự động'}</span>
           </button>
 
           {/* Download 4 separate files directly */}
