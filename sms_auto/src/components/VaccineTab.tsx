@@ -378,15 +378,15 @@ export const VaccineTab: React.FC<VaccineTabProps> = ({
 
   if (items.length === 0) {
     return (
-      <div className="rounded-2xl border border-dashed border-slate-300 p-12 text-center dark:border-slate-800">
-        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 mb-3">
-          <Syringe className="h-7 w-7" />
+      <div className="rounded-2xl border border-slate-200/90 dark:border-slate-800/90 bg-white dark:bg-[#0e1726] p-12 sm:p-16 text-center shadow-2xs">
+        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 mb-4 border border-emerald-200/60 dark:border-emerald-900/50">
+          <Syringe className="h-8 w-8" />
         </div>
-        <h3 className="text-base font-semibold text-slate-800 dark:text-slate-200">
+        <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white">
           Chưa có dữ liệu danh sách Tiêm chủng Vaccine
         </h3>
-        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400 max-w-md mx-auto">
-          Vui lòng tải lên file báo cáo tiêm chủng chứa các cột <span className="font-mono text-xs font-semibold">Họ tên</span>, <span className="font-mono text-xs font-semibold">Điện thoại</span>, <span className="font-mono text-xs font-semibold">Vaccine</span>, và <span className="font-mono text-xs font-semibold">Ngày tái khám</span> ở phía trên.
+        <p className="mt-2 text-xs sm:text-sm text-slate-500 dark:text-slate-400 max-w-lg mx-auto leading-relaxed">
+          Vui lòng tải lên file báo cáo tiêm chủng chứa các cột <span className="font-mono text-xs font-semibold text-slate-700 dark:text-slate-300">Họ tên</span>, <span className="font-mono text-xs font-semibold text-slate-700 dark:text-slate-300">Điện thoại</span>, <span className="font-mono text-xs font-semibold text-slate-700 dark:text-slate-300">Vaccine</span>, và <span className="font-mono text-xs font-semibold text-slate-700 dark:text-slate-300">Ngày tái khám</span> ở phía trên.
         </p>
       </div>
     );
