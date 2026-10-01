@@ -271,58 +271,52 @@ export default function App() {
 
       {/* Main Content Area */}
       <main className="flex-1 mx-auto w-full max-w-7xl px-4 py-6 sm:px-6">
-        {/* Professional Segmented Navigation Tabs */}
-        <div className="mb-5 flex flex-col sm:flex-row items-center justify-between gap-3 border-b border-slate-200/90 dark:border-slate-800 pb-3">
-          <div className="flex items-center gap-1.5 p-1 rounded-lg bg-slate-200/60 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/80 w-full sm:w-auto">
-            {/* Tab 1: Rút gọn link */}
+        {/* Full-width Segmented Navigation Tabs matching the UploadZone block width */}
+        <div className="mb-5">
+          <div className="w-full grid grid-cols-1 sm:grid-cols-2 p-1.5 rounded-xl bg-slate-200/70 dark:bg-slate-800/80 border border-slate-300/80 dark:border-slate-700/80 shadow-inner gap-1.5 sm:gap-2">
+            {/* Tab 1: Rút gọn link & Chuẩn hóa SĐT */}
             <button
               type="button"
               onClick={() => {
                 setActiveTab('link');
                 setCarrierFilter('all');
               }}
-              className={`flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2 rounded-md text-xs font-semibold transition-all duration-150 cursor-pointer ${
+              className={`w-full flex items-center justify-center gap-2.5 py-3 px-4 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer ${
                 activeTab === 'link'
-                  ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-xs border border-slate-200/80 dark:border-slate-700'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                  ? 'bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 shadow-sm border border-slate-200/80 dark:border-slate-700 font-bold scale-[1.005]'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/40 dark:hover:bg-slate-750/50'
               }`}
             >
-              <Link2 className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
-              <span>Rút gọn link & Chuẩn hóa SĐT</span>
+              <Link2 className={`h-4 w-4 shrink-0 ${activeTab === 'link' ? 'text-blue-600 dark:text-blue-400' : 'text-slate-400'}`} />
+              <span className="truncate">Rút gọn link & Chuẩn hóa SĐT</span>
               {linkItems.length > 0 && (
-                <span className="font-mono text-[11px] font-bold text-slate-500 dark:text-slate-400">
-                  ({linkItems.length})
+                <span className="shrink-0 px-2 py-0.5 rounded-full text-[11px] font-bold bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300 font-mono">
+                  {linkItems.length}
                 </span>
               )}
             </button>
 
-            {/* Tab 2: Xử lý Vaccine */}
+            {/* Tab 2: Xử lý tiêm chủng Vaccine */}
             <button
               type="button"
               onClick={() => {
                 setActiveTab('vaccine');
                 setCarrierFilter('all');
               }}
-              className={`flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2 rounded-md text-xs font-semibold transition-all duration-150 cursor-pointer ${
+              className={`w-full flex items-center justify-center gap-2.5 py-3 px-4 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer ${
                 activeTab === 'vaccine'
-                  ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-xs border border-slate-200/80 dark:border-slate-700'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                  ? 'bg-white dark:bg-slate-900 text-emerald-600 dark:text-emerald-400 shadow-sm border border-slate-200/80 dark:border-slate-700 font-bold scale-[1.005]'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/40 dark:hover:bg-slate-750/50'
               }`}
             >
-              <Syringe className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
-              <span>Xử lý tiêm chủng Vaccine (4 cột SMS)</span>
+              <Syringe className={`h-4 w-4 shrink-0 ${activeTab === 'vaccine' ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400'}`} />
+              <span className="truncate">Xử lý tiêm chủng Vaccine</span>
               {vaccineItems.length > 0 && (
-                <span className="font-mono text-[11px] font-bold text-slate-500 dark:text-slate-400">
-                  ({vaccineItems.length})
+                <span className="shrink-0 px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300 font-mono">
+                  {vaccineItems.length}
                 </span>
               )}
             </button>
-          </div>
-
-          <div className="hidden lg:flex items-center gap-3 text-xs text-slate-500 dark:text-slate-400">
-            <span>Đầu số chuẩn hóa: <strong className="font-mono text-slate-700 dark:text-slate-200">84xxxxxxxxx</strong></span>
-            <span>·</span>
-            <span>Phân luồng: <strong className="text-slate-700 dark:text-slate-200">Vina, Mobi, Viettel, VNM</strong></span>
           </div>
         </div>
 
