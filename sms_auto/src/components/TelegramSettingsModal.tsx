@@ -89,7 +89,7 @@ export const TelegramSettingsModal: React.FC<TelegramSettingsModalProps> = ({
                 </span>
               </h3>
               <p className="text-xs text-slate-500 dark:text-slate-400">
-                Tự động gửi /gui, mã mẫu, file 1-4.xlsx và /done
+                Gửi trực tiếp các file Excel theo mạng (1.xlsx, 2.xlsx, 3.xlsx, 4.xlsx)
               </p>
             </div>
           </div>
