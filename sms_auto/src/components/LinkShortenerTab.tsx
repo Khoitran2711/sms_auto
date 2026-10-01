@@ -615,17 +615,6 @@ export const LinkShortenerTab: React.FC<LinkShortenerTabProps> = ({
             <span>{isSendingTelegram ? 'Đang gửi tin nhắn...' : 'Gửi tin nhắn tự động'}</span>
           </button>
 
-          {/* Download 4 separate files directly */}
-          <button
-            type="button"
-            onClick={handleDownloadSeparateFiles}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-indigo-700 dark:text-indigo-300 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/60 dark:hover:bg-indigo-900/60 border border-indigo-200 dark:border-indigo-800 rounded-md transition-colors cursor-pointer shadow-2xs"
-            title="Tự động tải về 4 file rời 1.xlsx, 2.xlsx, 3.xlsx, 4.xlsx cùng lúc mà không cần giải nén ZIP"
-          >
-            <Download className="h-3.5 w-3.5" />
-            <span>Tải 4 file rời (1, 2, 3, 4.xlsx)</span>
-          </button>
-
           <button
             type="button"
             onClick={handleExportZip}
@@ -634,16 +623,6 @@ export const LinkShortenerTab: React.FC<LinkShortenerTabProps> = ({
           >
             <Archive className="h-3.5 w-3.5" />
             <span>Xuất file ZIP (Theo nhà mạng)</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={handleExportExcel}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slate-700 dark:text-slate-300 bg-white hover:bg-slate-50 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-md transition-colors cursor-pointer border border-slate-200 dark:border-slate-700"
-            title="Xuất file Excel gồm 2 cột: Số điện thoại đầu 84 và Link đã rút gọn"
-          >
-            <Download className="h-3.5 w-3.5" />
-            <span className="hidden sm:inline">Xuất Excel tổng</span>
           </button>
         </div>
       </div>
