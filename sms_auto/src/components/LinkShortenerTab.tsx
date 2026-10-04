@@ -439,13 +439,18 @@ export const LinkShortenerTab: React.FC<LinkShortenerTabProps> = ({
         }
       );
 
-      const fileListStr = carrierFiles.map((f) => f.fileName).join(', ');
+      const totalRecipients = carrierFiles.reduce((sum, f) => sum + f.count, 0);
+
+      setTelegramProgress({
+        step: 'completed',
+        message: `Đã gửi tin nhắn thành công tới ${totalRecipients} người`,
+        percent: 100,
+      });
+
       addToast({
         type: 'success',
         title: 'Gửi tin nhắn tự động thành công',
-        message: isFilteredSelection
-          ? `Đã gửi thành công file chứa ${selectedItems.length} dòng đã chọn (${fileListStr}) vào nhóm Telegram!`
-          : `Hệ thống đã gửi toàn bộ dữ liệu file (${fileListStr}) thành công vào nhóm chat Telegram!`,
+        message: `Đã gửi tin nhắn thành công tới ${totalRecipients} người`,
         duration: 5000,
       });
     } catch (err: any) {
@@ -670,7 +675,7 @@ export const LinkShortenerTab: React.FC<LinkShortenerTabProps> = ({
             className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-amber-50/90 dark:bg-amber-950/40 border border-amber-200/90 dark:border-amber-900/60 text-xs text-amber-900 dark:text-amber-200"
             title={`Đợt đưa bảng lên lần #${batchCount} trong ngày. Tên file quy chuẩn: ${getCarrierFileName('VinaPhone', batchCount)}, ${getCarrierFileName('MobiFone', batchCount)}, ${getCarrierFileName('Viettel', batchCount)}, ${getCarrierFileName('Vietnamobile', batchCount)}`}
           >
-            <span className="font-semibold text-amber-800 dark:text-amber-300">Tên File Lần {batchCount}:</span>
+            <span className="font-semibold text-amber-800 dark:text-amber-300">Đợt #{batchCount}:</span>
             <span className="font-mono font-medium text-[11px] text-amber-950 dark:text-amber-100">
               {getCarrierFileName('VinaPhone', batchCount)}, {getCarrierFileName('MobiFone', batchCount)}, {getCarrierFileName('Viettel', batchCount)}
             </span>
