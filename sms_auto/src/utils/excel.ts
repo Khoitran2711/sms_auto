@@ -4,6 +4,9 @@ import { saveAs } from 'file-saver';
 import { Carrier, LinkItem, VaccineItem } from '../types';
 import { formatPhone, CARRIER_META } from './phone';
 import { cleanVaccineName, removeVietnameseDiacritics } from './vietnamese';
+import { getCarrierFileName } from './dailyBatch';
+
+export { getCarrierFileName } from './dailyBatch';
 
 export interface ParsedExcelResult {
   objects: any[];
@@ -284,7 +287,8 @@ export function exportExcelFile(rows: any[], fileName: string, sheetName: string
 export async function exportLinkZip(
   items: LinkItem[],
   zipName: string = 'SMS_Link_TheoNhaMang.zip',
-  headerStyle: 'tieng_viet' | 'khong_dau' = 'tieng_viet'
+  headerStyle: 'tieng_viet' | 'khong_dau' = 'tieng_viet',
+  batchCount: number = 1
 ) {
   const zip = new JSZip();
 
@@ -324,7 +328,8 @@ export async function exportLinkZip(
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, carrier);
       const buffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
-      zip.file(`${CARRIER_META[carrier].fileNameLink}`, buffer);
+      const fileName = getCarrierFileName(carrier, batchCount);
+      zip.file(fileName, buffer);
     }
   });
 
@@ -351,10 +356,10 @@ export async function exportLinkZip(
 
 /**
  * Xuất gói ZIP chứa các file Excel phân loại theo quy tắc số của SMS Brandname cho Vaccine:
- * 1.xlsx cho VinaPhone
- * 2.xlsx cho MobiFone
- * 3.xlsx cho Viettel
- * 4.xlsx cho Vietnamobile
+ * 1.xlsx cho VinaPhone (hoặc 11.xlsx lần 2, 111.xlsx lần 3...)
+ * 2.xlsx cho MobiFone (hoặc 22.xlsx lần 2...)
+ * 3.xlsx cho Viettel (hoặc 33.xlsx lần 2...)
+ * 4.xlsx cho Vietnamobile (hoặc 44.xlsx lần 2...)
  * 5_Khac.xlsx cho Khác
  * Yêu cầu: File excel nhà mạng tải xuống chỉ gồm 4 cột là:
  * 1. Cột Số điện thoại đầu 84
@@ -365,11 +370,12 @@ export async function exportLinkZip(
 export async function exportVaccineZip(
   items: VaccineItem[],
   zipName: string = 'SMS_Vaccine_NhaMang.zip',
-  headerStyle: 'tieng_viet' | 'khong_dau' = 'tieng_viet'
+  headerStyle: 'tieng_viet' | 'khong_dau' = 'tieng_viet',
+  batchCount: number = 1
 ) {
   const zip = new JSZip();
 
-  const files = generateVaccineCarrierBuffers(items, headerStyle);
+  const files = generateVaccineCarrierBuffers(items, headerStyle, batchCount);
   files.forEach((f) => {
     zip.file(f.fileName, f.buffer);
   });
@@ -397,29 +403,31 @@ export async function exportVaccineZip(
 
 /**
  * Tạo danh sách các file Excel dạng buffer cho 4 nhà mạng
- * Chuẩn tên file: 1.xlsx (VinaPhone), 2.xlsx (MobiFone), 3.xlsx (Viettel), 4.xlsx (Vietnamobile)
+ * Chuẩn tên file theo lượt tải trong ngày: 1.xlsx/11.xlsx (Vina), 2/22 (Mobi), 3/33 (Viettel), 4/44 (Vietnamobile)
  */
 export function generateVaccineCarrierBuffers(
   items: VaccineItem[],
-  headerStyle: 'tieng_viet' | 'khong_dau' = 'tieng_viet'
+  headerStyle: 'tieng_viet' | 'khong_dau' = 'tieng_viet',
+  batchCount: number = 1
 ): { carrier: Carrier; fileName: string; buffer: Uint8Array; count: number }[] {
   const phoneHeader = headerStyle === 'khong_dau' ? 'SoDT' : 'Số điện thoại';
   const nameHeader = headerStyle === 'khong_dau' ? 'HoTen' : 'Họ tên';
   const vaccineHeader = 'Vaccine';
   const dateHeader = headerStyle === 'khong_dau' ? 'NgayTaiKham' : 'Ngày tái khám';
 
-  const fileMappings: { carrier: Carrier; fileName: string; sheetName: string }[] = [
-    { carrier: 'VinaPhone', fileName: '1.xlsx', sheetName: 'VinaPhone' },
-    { carrier: 'MobiFone', fileName: '2.xlsx', sheetName: 'MobiFone' },
-    { carrier: 'Viettel', fileName: '3.xlsx', sheetName: 'Viettel' },
-    { carrier: 'Vietnamobile', fileName: '4.xlsx', sheetName: 'Vietnamobile' },
+  const carriers: { carrier: Carrier; sheetName: string }[] = [
+    { carrier: 'VinaPhone', sheetName: 'VinaPhone' },
+    { carrier: 'MobiFone', sheetName: 'MobiFone' },
+    { carrier: 'Viettel', sheetName: 'Viettel' },
+    { carrier: 'Vietnamobile', sheetName: 'Vietnamobile' },
   ];
 
   const result: { carrier: Carrier; fileName: string; buffer: Uint8Array; count: number }[] = [];
 
-  fileMappings.forEach(({ carrier, fileName, sheetName }) => {
+  carriers.forEach(({ carrier, sheetName }) => {
     const carrierItems = items.filter((i) => i.carrier === carrier && i.isValidPhone);
     if (carrierItems.length > 0) {
+      const fileName = getCarrierFileName(carrier, batchCount);
       const exportRows = carrierItems.map((item) => ({
         [phoneHeader]: item.formattedPhone,
         [nameHeader]: item.hoTenKhongDau,
@@ -445,27 +453,29 @@ export function generateVaccineCarrierBuffers(
 
 /**
  * Tạo danh sách các file Excel dạng buffer cho tab Rút gọn link (đầu 84 và Link đã rút gọn)
- * Quy ước tên file chuẩn: 1.xlsx (Vina), 2.xlsx (Mobi), 3.xlsx (Viettel), 4.xlsx (VNM)
+ * Quy ước tên file chuẩn: 1.xlsx/11.xlsx (Vina), 2/22 (Mobi), 3/33 (Viettel), 4/44 (VNM)
  */
 export function generateLinkCarrierBuffers(
   items: LinkItem[],
-  headerStyle: 'tieng_viet' | 'khong_dau' = 'tieng_viet'
+  headerStyle: 'tieng_viet' | 'khong_dau' = 'tieng_viet',
+  batchCount: number = 1
 ): { carrier: Carrier; fileName: string; buffer: Uint8Array; count: number }[] {
   const phoneHeader = headerStyle === 'khong_dau' ? 'SoDT' : 'Số điện thoại';
   const linkHeader = headerStyle === 'khong_dau' ? 'Link' : 'Link đã rút gọn';
 
-  const fileMappings: { carrier: Carrier; fileName: string; sheetName: string }[] = [
-    { carrier: 'VinaPhone', fileName: '1.xlsx', sheetName: 'VinaPhone' },
-    { carrier: 'MobiFone', fileName: '2.xlsx', sheetName: 'MobiFone' },
-    { carrier: 'Viettel', fileName: '3.xlsx', sheetName: 'Viettel' },
-    { carrier: 'Vietnamobile', fileName: '4.xlsx', sheetName: 'Vietnamobile' },
+  const carriers: { carrier: Carrier; sheetName: string }[] = [
+    { carrier: 'VinaPhone', sheetName: 'VinaPhone' },
+    { carrier: 'MobiFone', sheetName: 'MobiFone' },
+    { carrier: 'Viettel', sheetName: 'Viettel' },
+    { carrier: 'Vietnamobile', sheetName: 'Vietnamobile' },
   ];
 
   const result: { carrier: Carrier; fileName: string; buffer: Uint8Array; count: number }[] = [];
 
-  fileMappings.forEach(({ carrier, fileName, sheetName }) => {
+  carriers.forEach(({ carrier, sheetName }) => {
     const list = items.filter((i) => i.carrier === carrier && i.isValidPhone);
     if (list.length > 0) {
+      const fileName = getCarrierFileName(carrier, batchCount);
       const exportRows = list.map((item) => ({
         [phoneHeader]: item.formattedPhone,
         [linkHeader]: item.shortLink || item.originalLink,
@@ -488,8 +498,7 @@ export function generateLinkCarrierBuffers(
 }
 
 /**
- * Bảng mã ánh xạ tên file chuẩn SMS của các nhà mạng:
- * 1.xlsx (VinaPhone), 2.xlsx (MobiFone), 3.xlsx (Viettel), 4.xlsx (Vietnamobile)
+ * Bảng mã ánh xạ tên file chuẩn SMS của các nhà mạng mặc định
  */
 export const CARRIER_FILE_MAP: Record<Carrier, string> = {
   VinaPhone: '1.xlsx',
@@ -507,21 +516,23 @@ export const CARRIER_FILE_MAP: Record<Carrier, string> = {
  * Xuất 1 file Excel riêng cho nhà mạng được chỉ định (áp dụng khi người dùng tích chọn 1 hoặc nhiều dòng)
  * - Tab 'link': gồm đúng 2 cột (Số điện thoại đầu 84, Link đã rút gọn)
  * - Tab 'vaccine': gồm đúng 4 cột (Số điện thoại, Họ tên không dấu, Vaccine không dấu, Ngày tái khám)
- * - Tên file chuẩn: 1.xlsx (Vina), 2.xlsx (Mobi), 3.xlsx (Viettel), 4.xlsx (VNM)
+ * - Tên file chuẩn: 1.xlsx/11.xlsx (Vina), 2/22 (Mobi), 3/33 (Viettel), 4/44 (VNM)
  */
 export function exportSingleCarrierExcel({
   carrier,
   items,
   tabType,
   headerStyle = 'tieng_viet',
+  batchCount = 1,
 }: {
   carrier: Carrier;
   items: (LinkItem | VaccineItem)[];
   tabType: 'link' | 'vaccine';
   headerStyle?: 'tieng_viet' | 'khong_dau';
+  batchCount?: number;
 }): string {
   const phoneHeader = headerStyle === 'khong_dau' ? 'SoDT' : 'Số điện thoại';
-  const fileName = CARRIER_FILE_MAP[carrier] || `${carrier}.xlsx`;
+  const fileName = getCarrierFileName(carrier, batchCount);
   const sheetName = carrier === 'Không hợp lệ' ? 'Loi' : carrier;
 
   let exportRows: any[] = [];
