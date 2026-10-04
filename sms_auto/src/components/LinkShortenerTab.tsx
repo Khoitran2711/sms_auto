@@ -13,6 +13,7 @@ import {
   exportExcelFile,
   generateLinkCarrierBuffers,
   exportSingleCarrierExcel,
+  getCarrierFileName,
   CARRIER_FILE_MAP,
 } from '../utils/excel';
 import {
@@ -53,6 +54,8 @@ interface LinkShortenerTabProps {
   headerStyle?: 'tieng_viet' | 'khong_dau';
   telegramConfig?: AppSettings['telegram'];
   onOpenTelegramConfig?: () => void;
+  batchCount?: number;
+  onResetBatch?: () => void;
 }
 
 export const LinkShortenerTab: React.FC<LinkShortenerTabProps> = ({
@@ -66,6 +69,8 @@ export const LinkShortenerTab: React.FC<LinkShortenerTabProps> = ({
   headerStyle = 'tieng_viet',
   telegramConfig,
   onOpenTelegramConfig,
+  batchCount = 1,
+  onResetBatch,
 }) => {
   // Telegram progress state
   const [telegramProgress, setTelegramProgress] = useState<TelegramSendProgress | null>(null);
@@ -180,11 +185,12 @@ export const LinkShortenerTab: React.FC<LinkShortenerTabProps> = ({
       items: carrierItems,
       tabType: 'link',
       headerStyle,
+      batchCount,
     });
     addToast({
       type: 'success',
       title: `Đã xuất file Excel ${carrier}`,
-      message: `Đã lưu file ${fileName} gồm ${carrierItems.length} dòng của nhà mạng ${carrier}.`,
+      message: `Đã lưu file ${fileName} (${carrier}) gồm ${carrierItems.length} dòng của nhà mạng ${carrier}.`,
     });
   };
 
@@ -382,7 +388,7 @@ export const LinkShortenerTab: React.FC<LinkShortenerTabProps> = ({
       return;
     }
 
-    const carrierFiles = generateLinkCarrierBuffers(items, headerStyle);
+    const carrierFiles = generateLinkCarrierBuffers(items, headerStyle, batchCount);
     if (carrierFiles.length === 0) {
       addToast({
         type: 'warning',
@@ -454,13 +460,14 @@ export const LinkShortenerTab: React.FC<LinkShortenerTabProps> = ({
     try {
       await exportLinkZip(
         items,
-        `BVDK_NinhThuan_SMS_Link_${new Date().toISOString().slice(0, 10)}.zip`,
-        headerStyle
+        `BVDK_NinhThuan_SMS_Link_${new Date().toISOString().slice(0, 10)}_Dot${batchCount}.zip`,
+        headerStyle,
+        batchCount
       );
       addToast({
         type: 'success',
         title: 'Đã xuất file ZIP thành công',
-        message: 'Gói ZIP gồm các file theo nhà mạng, mỗi file chỉ gồm 2 cột: Số điện thoại và Link đã rút gọn.',
+        message: `Gói ZIP đợt #${batchCount} gồm các file (${getCarrierFileName('VinaPhone', batchCount)}, ${getCarrierFileName('Viettel', batchCount)}...) mỗi file gồm 2 cột chuẩn SMS.`,
       });
     } catch (err: any) {
       addToast({
@@ -616,7 +623,7 @@ export const LinkShortenerTab: React.FC<LinkShortenerTabProps> = ({
           {selectedCarriers.map((carrier) => {
             const count = selectedItems.filter((i) => i.carrier === carrier).length;
             const meta = CARRIER_META[carrier];
-            const fileName = CARRIER_FILE_MAP[carrier] || `${carrier}.xlsx`;
+            const fileName = getCarrierFileName(carrier, batchCount);
 
             return (
               <button
@@ -645,15 +652,36 @@ export const LinkShortenerTab: React.FC<LinkShortenerTabProps> = ({
           )}
         </div>
 
-        {/* Export Buttons */}
-        <div className="flex items-center gap-2">
+        {/* Export Buttons and Daily Batch Indicator */}
+        <div className="flex flex-wrap items-center gap-2">
+          {/* Daily batch badge */}
+          <div
+            className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-amber-50/90 dark:bg-amber-950/40 border border-amber-200/90 dark:border-amber-900/60 text-xs text-amber-900 dark:text-amber-200"
+            title={`Đợt đưa bảng lên lần #${batchCount} trong ngày. Tên file quy chuẩn: ${getCarrierFileName('VinaPhone', batchCount)}, ${getCarrierFileName('MobiFone', batchCount)}, ${getCarrierFileName('Viettel', batchCount)}, ${getCarrierFileName('Vietnamobile', batchCount)}`}
+          >
+            <span className="font-semibold text-amber-800 dark:text-amber-300">Đợt #{batchCount}:</span>
+            <span className="font-mono font-medium text-[11px] text-amber-950 dark:text-amber-100">
+              {getCarrierFileName('VinaPhone', batchCount)}, {getCarrierFileName('MobiFone', batchCount)}, {getCarrierFileName('Viettel', batchCount)}
+            </span>
+            {onResetBatch && batchCount > 1 && (
+              <button
+                type="button"
+                onClick={onResetBatch}
+                className="ml-1 px-1.5 py-0.5 rounded bg-amber-200/80 hover:bg-amber-300 dark:bg-amber-900/70 dark:hover:bg-amber-800 text-[10px] font-bold text-amber-950 dark:text-amber-100 transition-colors cursor-pointer"
+                title="Reset về đợt 1 (1.xlsx, 2.xlsx...)"
+              >
+                ↺ Reset
+              </button>
+            )}
+          </div>
+
           {/* Send to Telegram Bot Button */}
           <button
             type="button"
             onClick={handleSendTelegram}
             disabled={isSendingTelegram || items.length === 0}
             className="flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold text-white bg-sky-600 hover:bg-sky-500 active:bg-sky-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-md transition-all shadow-xs cursor-pointer"
-            title="Gửi trực tiếp các file Excel theo mạng (1.xlsx, 2.xlsx, 3.xlsx, 4.xlsx) sang Telegram"
+            title={`Gửi trực tiếp các file Excel theo mạng (${getCarrierFileName('VinaPhone', batchCount)}, ${getCarrierFileName('Viettel', batchCount)}...) sang Telegram`}
           >
             {isSendingTelegram ? (
               <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -667,7 +695,7 @@ export const LinkShortenerTab: React.FC<LinkShortenerTabProps> = ({
             type="button"
             onClick={handleExportZip}
             className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-emerald-800 dark:text-emerald-300 bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/60 dark:hover:bg-emerald-900/60 rounded-md transition-colors cursor-pointer border border-emerald-200 dark:border-emerald-800"
-            title="Xuất các file Excel theo từng nhà mạng (chỉ gồm 2 cột: Số điện thoại đầu 84 và Link đã rút gọn)"
+            title={`Xuất các file Excel theo từng nhà mạng (${getCarrierFileName('VinaPhone', batchCount)}, ${getCarrierFileName('Viettel', batchCount)}... - chỉ gồm 2 cột chuẩn)`}
           >
             <Archive className="h-3.5 w-3.5" />
             <span>Xuất file ZIP (Theo nhà mạng)</span>
@@ -1004,6 +1032,7 @@ export const LinkShortenerTab: React.FC<LinkShortenerTabProps> = ({
                                 items: [item],
                                 tabType: 'link',
                                 headerStyle,
+                                batchCount,
                               });
                               addToast({
                                 type: 'success',
