@@ -12,6 +12,8 @@ import {
   exportLinkZip,
   exportExcelFile,
   generateLinkCarrierBuffers,
+  exportSingleCarrierExcel,
+  CARRIER_FILE_MAP,
 } from '../utils/excel';
 import {
   executeTelegramAutoWorkflow,
@@ -142,7 +144,18 @@ export const LinkShortenerTab: React.FC<LinkShortenerTabProps> = ({
 
   // Selection handlers
   const allFilteredSelected = filteredItems.length > 0 && filteredItems.every((i) => i.selected);
-  const selectedCount = items.filter((i) => i.selected).length;
+  const selectedItems = useMemo(() => items.filter((i) => i.selected), [items]);
+  const selectedCount = selectedItems.length;
+
+  const selectedCarriers = useMemo(() => {
+    const list: Carrier[] = [];
+    selectedItems.forEach((i) => {
+      if (i.carrier && !list.includes(i.carrier)) {
+        list.push(i.carrier);
+      }
+    });
+    return list;
+  }, [selectedItems]);
 
   const toggleSelectAll = () => {
     const targetState = !allFilteredSelected;
@@ -156,6 +169,23 @@ export const LinkShortenerTab: React.FC<LinkShortenerTabProps> = ({
     setItems((prev) =>
       prev.map((item) => (item.id === id ? { ...item, selected: !item.selected } : item))
     );
+  };
+
+  // Export 1 file Excel riêng cho nhà mạng của các dòng được tích chọn
+  const handleExportSelectedCarrier = (carrier: Carrier) => {
+    const carrierItems = selectedItems.filter((i) => i.carrier === carrier);
+    if (carrierItems.length === 0) return;
+    const fileName = exportSingleCarrierExcel({
+      carrier,
+      items: carrierItems,
+      tabType: 'link',
+      headerStyle,
+    });
+    addToast({
+      type: 'success',
+      title: `Đã xuất file Excel ${carrier}`,
+      message: `Đã lưu file ${fileName} gồm ${carrierItems.length} dòng của nhà mạng ${carrier}.`,
+    });
   };
 
   // Shorten all or selected
@@ -582,6 +612,27 @@ export const LinkShortenerTab: React.FC<LinkShortenerTabProps> = ({
             </button>
           )}
 
+          {/* Export Selected Carrier File(s) - xuất file excel thuộc nhà mạng tương ứng của các dòng được tích */}
+          {selectedCarriers.map((carrier) => {
+            const count = selectedItems.filter((i) => i.carrier === carrier).length;
+            const meta = CARRIER_META[carrier];
+            const fileName = CARRIER_FILE_MAP[carrier] || `${carrier}.xlsx`;
+
+            return (
+              <button
+                key={carrier}
+                type="button"
+                onClick={() => handleExportSelectedCarrier(carrier)}
+                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-emerald-800 dark:text-emerald-200 bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/70 dark:hover:bg-emerald-900 border border-emerald-300 dark:border-emerald-700 rounded-md transition-all cursor-pointer shadow-2xs hover:-translate-y-0.5 active:translate-y-0"
+                title={`Xuất file Excel ${fileName} (${carrier}) gồm ${count} dòng đã chọn`}
+              >
+                {meta && <span className={`h-2 w-2 rounded-full ${meta.dotColor}`} />}
+                <Download className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
+                <span>Xuất Excel {carrier} ({count} dòng)</span>
+              </button>
+            );
+          })}
+
           {hasActiveFilters && (
             <button
               type="button"
@@ -944,15 +995,37 @@ export const LinkShortenerTab: React.FC<LinkShortenerTabProps> = ({
 
                       {/* Thao tác */}
                       <td className="px-3 py-2.5 text-center">
-                        <button
-                          type="button"
-                          disabled={isProcessing || !item.originalLink}
-                          onClick={() => handleSingleShorten(item)}
-                          className="inline-flex items-center justify-center p-1.5 text-slate-500 hover:text-blue-600 hover:bg-slate-100 dark:hover:bg-slate-800 rounded transition-colors"
-                          title="Rút gọn lại dòng này"
-                        >
-                          <RotateCw className="h-3.5 w-3.5" />
-                        </button>
+                        <div className="flex items-center justify-center gap-1">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const fileName = exportSingleCarrierExcel({
+                                carrier: item.carrier,
+                                items: [item],
+                                tabType: 'link',
+                                headerStyle,
+                              });
+                              addToast({
+                                type: 'success',
+                                title: `Đã xuất file Excel ${item.carrier}`,
+                                message: `Đã lưu file ${fileName} (${item.carrier}) cho dòng này.`,
+                              });
+                            }}
+                            className="inline-flex items-center justify-center p-1.5 text-slate-500 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-slate-800 rounded transition-colors"
+                            title={`Xuất file Excel của mạng ${item.carrier} cho dòng này`}
+                          >
+                            <Download className="h-3.5 w-3.5" />
+                          </button>
+                          <button
+                            type="button"
+                            disabled={isProcessing || !item.originalLink}
+                            onClick={() => handleSingleShorten(item)}
+                            className="inline-flex items-center justify-center p-1.5 text-slate-500 hover:text-blue-600 hover:bg-slate-100 dark:hover:bg-slate-800 rounded transition-colors"
+                            title="Rút gọn lại dòng này"
+                          >
+                            <RotateCw className="h-3.5 w-3.5" />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   );
