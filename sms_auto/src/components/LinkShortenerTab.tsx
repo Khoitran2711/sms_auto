@@ -659,7 +659,7 @@ export const LinkShortenerTab: React.FC<LinkShortenerTabProps> = ({
             className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-amber-50/90 dark:bg-amber-950/40 border border-amber-200/90 dark:border-amber-900/60 text-xs text-amber-900 dark:text-amber-200"
             title={`Đợt đưa bảng lên lần #${batchCount} trong ngày. Tên file quy chuẩn: ${getCarrierFileName('VinaPhone', batchCount)}, ${getCarrierFileName('MobiFone', batchCount)}, ${getCarrierFileName('Viettel', batchCount)}, ${getCarrierFileName('Vietnamobile', batchCount)}`}
           >
-            <span className="font-semibold text-amber-800 dark:text-amber-300">Tên File Lần #{batchCount}:</span>
+            <span className="font-semibold text-amber-800 dark:text-amber-300">Tên File Lần {batchCount}:</span>
             <span className="font-mono font-medium text-[11px] text-amber-950 dark:text-amber-100">
               {getCarrierFileName('VinaPhone', batchCount)}, {getCarrierFileName('MobiFone', batchCount)}, {getCarrierFileName('Viettel', batchCount)}
             </span>
