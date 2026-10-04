@@ -12,6 +12,8 @@ import {
   exportVaccineZip,
   exportExcelFile,
   generateVaccineCarrierBuffers,
+  exportSingleCarrierExcel,
+  CARRIER_FILE_MAP,
 } from '../utils/excel';
 import {
   executeTelegramAutoWorkflow,
@@ -146,7 +148,18 @@ export const VaccineTab: React.FC<VaccineTabProps> = ({
 
   // Selection
   const allFilteredSelected = filteredItems.length > 0 && filteredItems.every((i) => i.selected);
-  const selectedCount = items.filter((i) => i.selected).length;
+  const selectedItems = useMemo(() => items.filter((i) => i.selected), [items]);
+  const selectedCount = selectedItems.length;
+
+  const selectedCarriers = useMemo(() => {
+    const list: Carrier[] = [];
+    selectedItems.forEach((i) => {
+      if (i.carrier && !list.includes(i.carrier)) {
+        list.push(i.carrier);
+      }
+    });
+    return list;
+  }, [selectedItems]);
 
   const toggleSelectAll = () => {
     const targetState = !allFilteredSelected;
@@ -160,6 +173,23 @@ export const VaccineTab: React.FC<VaccineTabProps> = ({
     setItems((prev) =>
       prev.map((item) => (item.id === id ? { ...item, selected: !item.selected } : item))
     );
+  };
+
+  // Export 1 file Excel riêng cho nhà mạng của các dòng được tích chọn
+  const handleExportSelectedCarrier = (carrier: Carrier) => {
+    const carrierItems = selectedItems.filter((i) => i.carrier === carrier);
+    if (carrierItems.length === 0) return;
+    const fileName = exportSingleCarrierExcel({
+      carrier,
+      items: carrierItems,
+      tabType: 'vaccine',
+      headerStyle,
+    });
+    addToast({
+      type: 'success',
+      title: `Đã xuất file Excel ${carrier}`,
+      message: `Đã lưu file ${fileName} gồm ${carrierItems.length} dòng của nhà mạng ${carrier}.`,
+    });
   };
 
   // Re-run batch normalization on all items
@@ -440,6 +470,27 @@ export const VaccineTab: React.FC<VaccineTabProps> = ({
             <span>Tự động chuẩn hóa lại</span>
           </button>
 
+          {/* Export Selected Carrier File(s) - xuất file excel thuộc nhà mạng tương ứng của các dòng được tích */}
+          {selectedCarriers.map((carrier) => {
+            const count = selectedItems.filter((i) => i.carrier === carrier).length;
+            const meta = CARRIER_META[carrier];
+            const fileName = CARRIER_FILE_MAP[carrier] || `${carrier}.xlsx`;
+
+            return (
+              <button
+                key={carrier}
+                type="button"
+                onClick={() => handleExportSelectedCarrier(carrier)}
+                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-emerald-800 dark:text-emerald-200 bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/70 dark:hover:bg-emerald-900 border border-emerald-300 dark:border-emerald-700 rounded-md transition-all cursor-pointer shadow-2xs hover:-translate-y-0.5 active:translate-y-0"
+                title={`Xuất file Excel ${fileName} (${carrier}) gồm ${count} dòng đã chọn`}
+              >
+                {meta && <span className={`h-2 w-2 rounded-full ${meta.dotColor}`} />}
+                <Download className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
+                <span>Xuất Excel {carrier} ({count} dòng)</span>
+              </button>
+            );
+          })}
+
           {hasActiveFilters && (
             <button
               type="button"
@@ -530,6 +581,7 @@ export const VaccineTab: React.FC<VaccineTabProps> = ({
                 <th className="min-w-[220px] px-3 py-2.5">Vaccine (Chuẩn SMS)</th>
                 <th className="min-w-[120px] px-3 py-2.5">Ngày tái khám</th>
                 <th className="min-w-[110px] px-3 py-2.5 text-center">Trạng thái</th>
+                <th className="w-16 px-3 py-2.5 text-center">Thao tác</th>
               </tr>
 
               {/* Column Filter Input Row */}
@@ -594,13 +646,14 @@ export const VaccineTab: React.FC<VaccineTabProps> = ({
                     ]}
                   />
                 </td>
+                <td className="px-2 py-1.5 text-center"></td>
               </tr>
             </thead>
 
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
               {filteredItems.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="py-12 text-center text-slate-400">
+                  <td colSpan={9} className="py-12 text-center text-slate-400">
                     Không tìm thấy dữ liệu nào phù hợp với bộ lọc hiện tại.
                   </td>
                 </tr>
@@ -768,6 +821,30 @@ export const VaccineTab: React.FC<VaccineTabProps> = ({
                             <span>Lỗi SĐT</span>
                           </span>
                         )}
+                      </td>
+
+                      {/* Thao tác */}
+                      <td className="px-3 py-2.5 text-center">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const fileName = exportSingleCarrierExcel({
+                              carrier: item.carrier,
+                              items: [item],
+                              tabType: 'vaccine',
+                              headerStyle,
+                            });
+                            addToast({
+                              type: 'success',
+                              title: `Đã xuất file Excel ${item.carrier}`,
+                              message: `Đã lưu file ${fileName} (${item.carrier}) cho dòng này.`,
+                            });
+                          }}
+                          className="inline-flex items-center justify-center p-1.5 text-slate-500 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-slate-800 rounded transition-colors cursor-pointer"
+                          title={`Xuất file Excel của mạng ${item.carrier} cho dòng này`}
+                        >
+                          <Download className="h-3.5 w-3.5" />
+                        </button>
                       </td>
                     </tr>
                   );
