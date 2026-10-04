@@ -488,6 +488,74 @@ export function generateLinkCarrierBuffers(
 }
 
 /**
+ * Bảng mã ánh xạ tên file chuẩn SMS của các nhà mạng:
+ * 1.xlsx (VinaPhone), 2.xlsx (MobiFone), 3.xlsx (Viettel), 4.xlsx (Vietnamobile)
+ */
+export const CARRIER_FILE_MAP: Record<Carrier, string> = {
+  VinaPhone: '1.xlsx',
+  MobiFone: '2.xlsx',
+  Viettel: '3.xlsx',
+  Vietnamobile: '4.xlsx',
+  Gmobile: '5_Khac.xlsx',
+  Itelecom: '5_Khac.xlsx',
+  Wintel: '5_Khac.xlsx',
+  Khác: '5_Khac.xlsx',
+  'Không hợp lệ': '0_Loi.xlsx',
+};
+
+/**
+ * Xuất 1 file Excel riêng cho nhà mạng được chỉ định (áp dụng khi người dùng tích chọn 1 hoặc nhiều dòng)
+ * - Tab 'link': gồm đúng 2 cột (Số điện thoại đầu 84, Link đã rút gọn)
+ * - Tab 'vaccine': gồm đúng 4 cột (Số điện thoại, Họ tên không dấu, Vaccine không dấu, Ngày tái khám)
+ * - Tên file chuẩn: 1.xlsx (Vina), 2.xlsx (Mobi), 3.xlsx (Viettel), 4.xlsx (VNM)
+ */
+export function exportSingleCarrierExcel({
+  carrier,
+  items,
+  tabType,
+  headerStyle = 'tieng_viet',
+}: {
+  carrier: Carrier;
+  items: (LinkItem | VaccineItem)[];
+  tabType: 'link' | 'vaccine';
+  headerStyle?: 'tieng_viet' | 'khong_dau';
+}): string {
+  const phoneHeader = headerStyle === 'khong_dau' ? 'SoDT' : 'Số điện thoại';
+  const fileName = CARRIER_FILE_MAP[carrier] || `${carrier}.xlsx`;
+  const sheetName = carrier === 'Không hợp lệ' ? 'Loi' : carrier;
+
+  let exportRows: any[] = [];
+
+  if (tabType === 'link') {
+    const linkHeader = headerStyle === 'khong_dau' ? 'Link' : 'Link đã rút gọn';
+    exportRows = (items as LinkItem[]).map((item) => ({
+      [phoneHeader]: item.formattedPhone || item.rawPhone,
+      [linkHeader]: item.shortLink || item.originalLink,
+    }));
+  } else {
+    const nameHeader = headerStyle === 'khong_dau' ? 'HoTen' : 'Họ tên';
+    const vaccineHeader = 'Vaccine';
+    const dateHeader = headerStyle === 'khong_dau' ? 'NgayTaiKham' : 'Ngày tái khám';
+    exportRows = (items as VaccineItem[]).map((item) => ({
+      [phoneHeader]: item.formattedPhone || item.rawPhone,
+      [nameHeader]: item.hoTenKhongDau || item.hoTen,
+      [vaccineHeader]: item.vacXinKhongDau || item.vacXin,
+      [dateHeader]: item.ngayHen,
+    }));
+  }
+
+  const ws = XLSX.utils.json_to_sheet(exportRows);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, sheetName);
+  const buffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+  const blob = new Blob([buffer], {
+    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  });
+  saveAs(blob, fileName);
+  return fileName;
+}
+
+/**
  * Tải file Excel mẫu cho chức năng Rút gọn link
  */
 export function downloadLinkSampleTemplate() {
