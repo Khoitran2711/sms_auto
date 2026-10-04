@@ -562,25 +562,6 @@ export const VaccineTab: React.FC<VaccineTabProps> = ({
         </div>
       </div>
 
-      {/* Structured specification guide */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 px-3.5 py-2 rounded-lg bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80 text-xs text-slate-600 dark:text-slate-400">
-        <div>
-          <span className="font-semibold text-slate-900 dark:text-slate-200">Quy cách xuất SMS: </span>
-          <span>
-            4 cột chuẩn: <strong>Số điện thoại (84xxx)</strong> · <strong>Họ tên (không dấu)</strong> · <strong>Vaccine</strong> · <strong>Ngày hẹn</strong>
-          </span>
-        </div>
-        <div className="flex items-center gap-2 font-mono text-[11px] text-slate-500 dark:text-slate-400">
-          <span>1. Vina</span>
-          <span>·</span>
-          <span>2. Mobi</span>
-          <span>·</span>
-          <span>3. Viettel</span>
-          <span>·</span>
-          <span>4. VNM</span>
-        </div>
-      </div>
-
       {/* Interactive Table with Column Filters */}
       <div className="overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-xs dark:border-slate-800 dark:bg-slate-900">
         <div className="max-h-[560px] overflow-auto">
