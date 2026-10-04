@@ -13,6 +13,7 @@ import {
   exportExcelFile,
   generateVaccineCarrierBuffers,
   exportSingleCarrierExcel,
+  getCarrierFileName,
   CARRIER_FILE_MAP,
 } from '../utils/excel';
 import {
@@ -51,6 +52,8 @@ interface VaccineTabProps {
   headerStyle?: 'tieng_viet' | 'khong_dau';
   telegramConfig?: AppSettings['telegram'];
   onOpenTelegramConfig?: () => void;
+  batchCount?: number;
+  onResetBatch?: () => void;
 }
 
 export const VaccineTab: React.FC<VaccineTabProps> = ({
@@ -64,6 +67,8 @@ export const VaccineTab: React.FC<VaccineTabProps> = ({
   headerStyle = 'tieng_viet',
   telegramConfig,
   onOpenTelegramConfig,
+  batchCount = 1,
+  onResetBatch,
 }) => {
   // Telegram progress state
   const [telegramProgress, setTelegramProgress] = useState<TelegramSendProgress | null>(null);
@@ -184,11 +189,12 @@ export const VaccineTab: React.FC<VaccineTabProps> = ({
       items: carrierItems,
       tabType: 'vaccine',
       headerStyle,
+      batchCount,
     });
     addToast({
       type: 'success',
       title: `Đã xuất file Excel ${carrier}`,
-      message: `Đã lưu file ${fileName} gồm ${carrierItems.length} dòng của nhà mạng ${carrier}.`,
+      message: `Đã lưu file ${fileName} (${carrier}) gồm ${carrierItems.length} dòng của nhà mạng ${carrier}.`,
     });
   };
 
@@ -287,7 +293,7 @@ export const VaccineTab: React.FC<VaccineTabProps> = ({
       return;
     }
 
-    const carrierFiles = generateVaccineCarrierBuffers(items, headerStyle);
+    const carrierFiles = generateVaccineCarrierBuffers(items, headerStyle, batchCount);
     if (carrierFiles.length === 0) {
       addToast({
         type: 'warning',
@@ -360,13 +366,14 @@ export const VaccineTab: React.FC<VaccineTabProps> = ({
     try {
       await exportVaccineZip(
         items,
-        `BVDK_NinhThuan_SMS_Vaccine_${new Date().toISOString().slice(0, 10)}.zip`,
-        headerStyle
+        `BVDK_NinhThuan_SMS_Vaccine_${new Date().toISOString().slice(0, 10)}_Dot${batchCount}.zip`,
+        headerStyle,
+        batchCount
       );
       addToast({
         type: 'success',
         title: 'Đã xuất gói ZIP thành công',
-        message: 'File đã được đặt tên chuẩn hệ thống SMS: 1.xlsx (VinaPhone), 2.xlsx (MobiFone), 3.xlsx (Viettel), 4.xlsx (Vietnamobile).',
+        message: `File đã được đặt tên chuẩn hệ thống SMS đợt #${batchCount}: ${getCarrierFileName('VinaPhone', batchCount)}, ${getCarrierFileName('MobiFone', batchCount)}, ${getCarrierFileName('Viettel', batchCount)}, ${getCarrierFileName('Vietnamobile', batchCount)}.`,
       });
     } catch (err: any) {
       addToast({
@@ -474,7 +481,7 @@ export const VaccineTab: React.FC<VaccineTabProps> = ({
           {selectedCarriers.map((carrier) => {
             const count = selectedItems.filter((i) => i.carrier === carrier).length;
             const meta = CARRIER_META[carrier];
-            const fileName = CARRIER_FILE_MAP[carrier] || `${carrier}.xlsx`;
+            const fileName = getCarrierFileName(carrier, batchCount);
 
             return (
               <button
@@ -503,15 +510,36 @@ export const VaccineTab: React.FC<VaccineTabProps> = ({
           )}
         </div>
 
-        {/* Action buttons */}
+        {/* Action buttons and Daily Batch Indicator */}
         <div className="flex flex-wrap items-center gap-2">
+          {/* Daily batch badge */}
+          <div
+            className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-amber-50/90 dark:bg-amber-950/40 border border-amber-200/90 dark:border-amber-900/60 text-xs text-amber-900 dark:text-amber-200"
+            title={`Đợt đưa bảng lên lần #${batchCount} trong ngày. Tên file quy chuẩn: ${getCarrierFileName('VinaPhone', batchCount)}, ${getCarrierFileName('MobiFone', batchCount)}, ${getCarrierFileName('Viettel', batchCount)}, ${getCarrierFileName('Vietnamobile', batchCount)}`}
+          >
+            <span className="font-semibold text-amber-800 dark:text-amber-300">Đợt #{batchCount}:</span>
+            <span className="font-mono font-medium text-[11px] text-amber-950 dark:text-amber-100">
+              {getCarrierFileName('VinaPhone', batchCount)}, {getCarrierFileName('MobiFone', batchCount)}, {getCarrierFileName('Viettel', batchCount)}
+            </span>
+            {onResetBatch && batchCount > 1 && (
+              <button
+                type="button"
+                onClick={onResetBatch}
+                className="ml-1 px-1.5 py-0.5 rounded bg-amber-200/80 hover:bg-amber-300 dark:bg-amber-900/70 dark:hover:bg-amber-800 text-[10px] font-bold text-amber-950 dark:text-amber-100 transition-colors cursor-pointer"
+                title="Reset về đợt 1 (1.xlsx, 2.xlsx...)"
+              >
+                ↺ Reset
+              </button>
+            )}
+          </div>
+
           {/* Send to Telegram Bot Button */}
           <button
             type="button"
             onClick={handleSendTelegram}
             disabled={isSendingTelegram || items.length === 0}
             className="flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold text-white bg-sky-600 hover:bg-sky-500 active:bg-sky-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-md transition-all shadow-xs cursor-pointer"
-            title="Gửi trực tiếp các file Excel theo mạng (1.xlsx, 2.xlsx, 3.xlsx, 4.xlsx) sang Telegram"
+            title={`Gửi trực tiếp các file Excel theo mạng (${getCarrierFileName('VinaPhone', batchCount)}, ${getCarrierFileName('Viettel', batchCount)}...) sang Telegram`}
           >
             {isSendingTelegram ? (
               <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -526,10 +554,10 @@ export const VaccineTab: React.FC<VaccineTabProps> = ({
             type="button"
             onClick={handleExportZip}
             className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white bg-emerald-700 hover:bg-emerald-800 rounded-md transition-colors cursor-pointer shadow-2xs"
-            title="Xuất file ZIP chứa 1.xlsx (VinaPhone), 2.xlsx (MobiFone), 3.xlsx (Viettel), 4.xlsx (Vietnamobile) - Chỉ gồm 4 cột chuẩn"
+            title={`Xuất file ZIP chứa ${getCarrierFileName('VinaPhone', batchCount)}, ${getCarrierFileName('MobiFone', batchCount)}, ${getCarrierFileName('Viettel', batchCount)}, ${getCarrierFileName('Vietnamobile', batchCount)} - Chỉ gồm 4 cột chuẩn`}
           >
             <Archive className="h-3.5 w-3.5" />
-            <span>Xuất file ZIP (1, 2, 3, 4.xlsx)</span>
+            <span>Xuất file ZIP ({getCarrierFileName('VinaPhone', batchCount)}, {getCarrierFileName('Viettel', batchCount)}...)</span>
           </button>
         </div>
       </div>
@@ -833,6 +861,7 @@ export const VaccineTab: React.FC<VaccineTabProps> = ({
                               items: [item],
                               tabType: 'vaccine',
                               headerStyle,
+                              batchCount,
                             });
                             addToast({
                               type: 'success',
