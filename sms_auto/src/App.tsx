@@ -21,6 +21,12 @@ import {
   generateSampleLinkItems,
   generateSampleVaccineItems,
 } from './utils/excel';
+import {
+  getDailyBatch,
+  incrementDailyBatch,
+  resetDailyBatch,
+  getCarrierFileName,
+} from './utils/dailyBatch';
 import { TelegramSettingsModal } from './components/TelegramSettingsModal';
 import { Link2, Syringe } from 'lucide-react';
 
@@ -50,9 +56,25 @@ export default function App() {
   // Datasets
   const [linkItems, setLinkItems] = useState<LinkItem[]>([]);
   const [linkFileName, setLinkFileName] = useState<string | null>(null);
+  const [linkBatch, setLinkBatch] = useState<number>(() => getDailyBatch('link'));
 
   const [vaccineItems, setVaccineItems] = useState<VaccineItem[]>([]);
   const [vaccineFileName, setVaccineFileName] = useState<string | null>(null);
+  const [vaccineBatch, setVaccineBatch] = useState<number>(() => getDailyBatch('vaccine'));
+
+  const handleResetBatch = (tab: 'link' | 'vaccine') => {
+    const resetVal = resetDailyBatch(tab);
+    if (tab === 'link') {
+      setLinkBatch(resetVal);
+    } else {
+      setVaccineBatch(resetVal);
+    }
+    addToast({
+      type: 'info',
+      title: 'Đã đặt lại về đợt 1',
+      message: 'Tên file SMS xuất ra sẽ quay về mặc định: 1.xlsx, 2.xlsx, 3.xlsx, 4.xlsx.',
+    });
+  };
 
   // Processing state
   const [isProcessing, setIsProcessing] = useState(false);
@@ -133,10 +155,16 @@ export default function App() {
         setLinkFileName(file.name);
         setCarrierFilter('all');
 
+        let currentBatch = linkBatch;
+        if (linkItems.length > 0) {
+          currentBatch = incrementDailyBatch('link');
+          setLinkBatch(currentBatch);
+        }
+
         addToast({
           type: 'success',
-          title: 'Đã tải file Excel thành công',
-          message: `Đã nạp ${mapped.length} dòng dữ liệu cho chức năng Rút gọn link.`,
+          title: `Đã nạp file Excel (Đợt #${currentBatch} trong ngày)`,
+          message: `Đã nạp ${mapped.length} dòng dữ liệu. Tên file SMS xuất ra: ${getCarrierFileName('VinaPhone', currentBatch)}, ${getCarrierFileName('MobiFone', currentBatch)}, ${getCarrierFileName('Viettel', currentBatch)}, ${getCarrierFileName('Vietnamobile', currentBatch)}.`,
         });
       } else if (activeTab === 'vaccine') {
         const mapped = mapRawToVaccineItems(parsed);
@@ -144,10 +172,16 @@ export default function App() {
         setVaccineFileName(file.name);
         setCarrierFilter('all');
 
+        let currentBatch = vaccineBatch;
+        if (vaccineItems.length > 0) {
+          currentBatch = incrementDailyBatch('vaccine');
+          setVaccineBatch(currentBatch);
+        }
+
         addToast({
           type: 'success',
-          title: 'Đã tải file Excel thành công',
-          message: `Đã nạp ${mapped.length} dòng dữ liệu tiêm chủng (Cột B: Họ tên, Cột F: Số ĐT, Cột H: Vaccine, Cột I: Ngày hẹn).`,
+          title: `Đã nạp file Excel (Đợt #${currentBatch} trong ngày)`,
+          message: `Đã nạp ${mapped.length} dòng tiêm chủng. Tên file SMS xuất ra: ${getCarrierFileName('VinaPhone', currentBatch)}, ${getCarrierFileName('MobiFone', currentBatch)}, ${getCarrierFileName('Viettel', currentBatch)}, ${getCarrierFileName('Vietnamobile', currentBatch)}.`,
         });
       }
     } catch (err: any) {
@@ -365,6 +399,8 @@ export default function App() {
               headerStyle={settings.exportHeaderStyle || 'tieng_viet'}
               telegramConfig={settings.telegram}
               onOpenTelegramConfig={() => setIsTelegramModalOpen(true)}
+              batchCount={linkBatch}
+              onResetBatch={() => handleResetBatch('link')}
             />
           )}
 
@@ -381,6 +417,8 @@ export default function App() {
               headerStyle={settings.exportHeaderStyle || 'tieng_viet'}
               telegramConfig={settings.telegram}
               onOpenTelegramConfig={() => setIsTelegramModalOpen(true)}
+              batchCount={vaccineBatch}
+              onResetBatch={() => handleResetBatch('vaccine')}
             />
           )}
         </div>
