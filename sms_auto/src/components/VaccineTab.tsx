@@ -293,12 +293,18 @@ export const VaccineTab: React.FC<VaccineTabProps> = ({
       return;
     }
 
-    const carrierFiles = generateVaccineCarrierBuffers(items, headerStyle, batchCount);
+    // Nếu người dùng có tích chọn dòng riêng lẻ thì chỉ gửi các dòng được tích, nếu không thì mặc định gửi toàn bộ
+    const isFilteredSelection = selectedItems.length > 0;
+    const targetItems = isFilteredSelection ? selectedItems : items;
+
+    const carrierFiles = generateVaccineCarrierBuffers(targetItems, headerStyle, batchCount);
     if (carrierFiles.length === 0) {
       addToast({
         type: 'warning',
         title: 'Chưa có dữ liệu',
-        message: 'Không tìm thấy dữ liệu hợp lệ để gửi sang Telegram.',
+        message: isFilteredSelection
+          ? 'Không tìm thấy số điện thoại hợp lệ trong các dòng đã chọn để gửi sang Telegram.'
+          : 'Không tìm thấy dữ liệu hợp lệ để gửi sang Telegram.',
       });
       return;
     }
@@ -306,7 +312,9 @@ export const VaccineTab: React.FC<VaccineTabProps> = ({
     setIsSendingTelegram(true);
     setTelegramProgress({
       step: 'idle',
-      message: 'Chuẩn bị dữ liệu gửi sang Bot Telegram...',
+      message: isFilteredSelection
+        ? `Chuẩn bị gửi dữ liệu của ${selectedItems.length} dòng đã chọn sang Bot Telegram...`
+        : 'Chuẩn bị dữ liệu gửi sang Bot Telegram...',
       percent: 5,
     });
 
@@ -336,10 +344,13 @@ export const VaccineTab: React.FC<VaccineTabProps> = ({
         }
       );
 
+      const fileListStr = carrierFiles.map((f) => f.fileName).join(', ');
       addToast({
         type: 'success',
         title: 'Gửi tin nhắn tự động thành công',
-        message: 'Hệ thống đã gửi toàn bộ dữ liệu file thành công vào nhóm chat Telegram!',
+        message: isFilteredSelection
+          ? `Đã gửi thành công file chứa ${selectedItems.length} dòng đã chọn (${fileListStr}) vào nhóm Telegram!`
+          : `Hệ thống đã gửi toàn bộ dữ liệu file (${fileListStr}) thành công vào nhóm chat Telegram!`,
         duration: 5000,
       });
     } catch (err: any) {
@@ -538,15 +549,29 @@ export const VaccineTab: React.FC<VaccineTabProps> = ({
             type="button"
             onClick={handleSendTelegram}
             disabled={isSendingTelegram || items.length === 0}
-            className="flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold text-white bg-sky-600 hover:bg-sky-500 active:bg-sky-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-md transition-all shadow-xs cursor-pointer"
-            title={`Gửi trực tiếp các file Excel theo mạng (${getCarrierFileName('VinaPhone', batchCount)}, ${getCarrierFileName('Viettel', batchCount)}...) sang Telegram`}
+            className={`flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold text-white disabled:opacity-50 disabled:cursor-not-allowed rounded-md transition-all shadow-xs cursor-pointer ${
+              selectedItems.length > 0
+                ? 'bg-sky-600 hover:bg-sky-500 active:bg-sky-700 ring-2 ring-sky-300 dark:ring-sky-600'
+                : 'bg-sky-600 hover:bg-sky-500 active:bg-sky-700'
+            }`}
+            title={
+              selectedItems.length > 0
+                ? `Gửi riêng các file Excel chứa ${selectedItems.length} dòng đã tích chọn sang Telegram`
+                : `Gửi trực tiếp các file Excel theo mạng (${getCarrierFileName('VinaPhone', batchCount)}, ${getCarrierFileName('Viettel', batchCount)}...) sang Telegram`
+            }
           >
             {isSendingTelegram ? (
               <Loader2 className="h-3.5 w-3.5 animate-spin" />
             ) : (
               <Send className="h-3.5 w-3.5" />
             )}
-            <span>{isSendingTelegram ? 'Đang gửi tin nhắn...' : 'Gửi tin nhắn tự động'}</span>
+            <span>
+              {isSendingTelegram
+                ? 'Đang gửi tin nhắn...'
+                : selectedItems.length > 0
+                ? `Gửi tin nhắn (${selectedItems.length} dòng đã chọn)`
+                : 'Gửi tin nhắn tự động'}
+            </span>
           </button>
 
           {/* Export ZIP with SMS naming convention */}
