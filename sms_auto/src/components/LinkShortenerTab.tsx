@@ -483,7 +483,7 @@ export const LinkShortenerTab: React.FC<LinkShortenerTabProps> = ({
       addToast({
         type: 'success',
         title: 'Đã xuất file ZIP thành công',
-        message: `Gói ZIP đợt #${batchCount} gồm các file (${getCarrierFileName('VinaPhone', batchCount)}, ${getCarrierFileName('Viettel', batchCount)}...) mỗi file gồm 2 cột chuẩn SMS.`,
+        message: `Gói ZIP ${batchCount} gồm các file (${getCarrierFileName('VinaPhone', batchCount)}, ${getCarrierFileName('Viettel', batchCount)}...) mỗi file gồm 2 cột chuẩn SMS.`,
       });
     } catch (err: any) {
       addToast({
@@ -673,9 +673,9 @@ export const LinkShortenerTab: React.FC<LinkShortenerTabProps> = ({
           {/* Daily batch badge */}
           <div
             className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-amber-50/90 dark:bg-amber-950/40 border border-amber-200/90 dark:border-amber-900/60 text-xs text-amber-900 dark:text-amber-200"
-            title={`Đợt đưa bảng lên lần #${batchCount} trong ngày. Tên file quy chuẩn: ${getCarrierFileName('VinaPhone', batchCount)}, ${getCarrierFileName('MobiFone', batchCount)}, ${getCarrierFileName('Viettel', batchCount)}, ${getCarrierFileName('Vietnamobile', batchCount)}`}
+            title={`Đợt đưa bảng lên lần ${batchCount} trong ngày. Tên file quy chuẩn: ${getCarrierFileName('VinaPhone', batchCount)}, ${getCarrierFileName('MobiFone', batchCount)}, ${getCarrierFileName('Viettel', batchCount)}, ${getCarrierFileName('Vietnamobile', batchCount)}`}
           >
-            <span className="font-semibold text-amber-800 dark:text-amber-300">Đợt #{batchCount}:</span>
+            <span className="font-semibold text-amber-800 dark:text-amber-300">Tên File Lần {batchCount}:</span>
             <span className="font-mono font-medium text-[11px] text-amber-950 dark:text-amber-100">
               {getCarrierFileName('VinaPhone', batchCount)}, {getCarrierFileName('MobiFone', batchCount)}, {getCarrierFileName('Viettel', batchCount)}
             </span>
