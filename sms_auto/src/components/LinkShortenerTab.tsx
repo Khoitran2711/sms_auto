@@ -698,7 +698,7 @@ export const LinkShortenerTab: React.FC<LinkShortenerTabProps> = ({
             className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-amber-50/90 dark:bg-amber-950/40 border border-amber-200/90 dark:border-amber-900/60 text-xs text-amber-900 dark:text-amber-200"
             title={`Đợt đưa bảng lên lần #${batchCount} trong ngày. Tên file quy chuẩn: ${getCarrierFileName('VinaPhone', batchCount)}, ${getCarrierFileName('MobiFone', batchCount)}, ${getCarrierFileName('Viettel', batchCount)}, ${getCarrierFileName('Vietnamobile', batchCount)}`}
           >
-            <span className="font-semibold text-amber-800 dark:text-amber-300">Tên File Lần {batchCount}:</span>
+            <span className="font-semibold text-amber-800 dark:text-amber-300">Đợt #{batchCount}:</span>
             <span className="font-mono font-medium text-[11px] text-amber-950 dark:text-amber-100">
               {getCarrierFileName('VinaPhone', batchCount)}, {getCarrierFileName('MobiFone', batchCount)}, {getCarrierFileName('Viettel', batchCount)}
             </span>
@@ -707,7 +707,7 @@ export const LinkShortenerTab: React.FC<LinkShortenerTabProps> = ({
                 type="button"
                 onClick={onResetBatch}
                 className="ml-1 px-1.5 py-0.5 rounded bg-amber-200/80 hover:bg-amber-300 dark:bg-amber-900/70 dark:hover:bg-amber-800 text-[10px] font-bold text-amber-950 dark:text-amber-100 transition-colors cursor-pointer"
-                title="Reset về đợt 1 (1.xlsx, 2.xlsx...)"
+                title="Reset về đợt 1 (1_vn.xlsx, 2_mb.xlsx...)"
               >
                 ↺ Reset
               </button>
