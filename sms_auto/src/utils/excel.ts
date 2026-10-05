@@ -77,19 +77,202 @@ function findKey(row: any, candidates: string[]): string | null {
 }
 
 /**
- * Chuyển dữ liệu thô từ Excel thành danh sách LinkItem
+ * Chuyển dữ liệu từ Excel thành danh sách LinkItem
+ * Kiểm tra và chuẩn hóa cấu trúc file:
+ * - Nếu file có Cột C chứa nội dung dưới dạng "drive.google.com" (chưa có Cột C "Link rut gon"):
+ *   Tự động chèn Cột C mới với tên "Link rut gon" (để trống), đẩy dữ liệu Cột C cũ sang Cột D ("Link goc").
+ * - Nếu file đã có Cột C "Link rut gon" (để trống hoặc đã có link rút gọn):
+ *   Thực hiện các thao tác bình thường.
  */
-export function mapRawToLinkItems(rawRows: any[]): LinkItem[] {
-  return rawRows.map((row, index) => {
-    // Tìm cột Họ tên
+export function mapRawToLinkItems(input: ParsedExcelResult | any[]): LinkItem[] & { insertedColC?: boolean } {
+  let sheet2D: any[][] = [];
+  let fallbackObjects: any[] = [];
+
+  if (Array.isArray(input)) {
+    fallbackObjects = input;
+  } else if (input && typeof input === 'object') {
+    sheet2D = input.sheet2D || [];
+    fallbackObjects = input.objects || [];
+  }
+
+  // 1. Nếu có mảng 2 chiều sheet2D từ file Excel
+  if (sheet2D && sheet2D.length > 0) {
+    let headerRowIdx = 0;
+
+    // Tìm dòng header tiêu đề (thường nằm ở dòng 0 hoặc 1)
+    for (let r = 0; r < Math.min(sheet2D.length, 10); r++) {
+      const row = sheet2D[r];
+      if (!row || row.length === 0) continue;
+      const rowStr = row
+        .map((c) => removeVietnameseDiacritics(String(c || '')).toLowerCase())
+        .join(' ');
+      if (rowStr.includes('hoten') || rowStr.includes('sodt') || rowStr.includes('link')) {
+        headerRowIdx = r;
+        break;
+      }
+    }
+
+    const headerRow = sheet2D[headerRowIdx] || [];
+    const colCHeader = removeVietnameseDiacritics(String(headerRow[2] || ''))
+      .toLowerCase()
+      .replace(/[\s_.-]/g, '');
+
+    const isColCAlreadyShortLink =
+      colCHeader.includes('linkrutgon') || colCHeader.includes('rutgon') || colCHeader === 'linkrg';
+
+    // Kiểm tra xem Cột C (index 2) có chứa nội dung dạng drive.google.com hay không
+    let colCHasDriveLink = false;
+    for (let r = headerRowIdx; r < Math.min(sheet2D.length, headerRowIdx + 50); r++) {
+      const cellVal = String(sheet2D[r]?.[2] || '').toLowerCase().trim();
+      if (
+        cellVal.includes('drive.google.com') ||
+        cellVal.includes('docs.google.com') ||
+        (cellVal.includes('drive.google') && cellVal.includes('http'))
+      ) {
+        colCHasDriveLink = true;
+        break;
+      }
+    }
+
+    // Cũng kiểm tra nếu tiêu đề Cột C là "Link goc" hoặc "Link" và có URL trong các dòng dữ liệu
+    if (
+      !colCHasDriveLink &&
+      (colCHeader.includes('linkgoc') || colCHeader.includes('goc') || colCHeader === 'link' || colCHeader === 'url')
+    ) {
+      for (let r = headerRowIdx + 1; r < Math.min(sheet2D.length, headerRowIdx + 30); r++) {
+        const cellVal = String(sheet2D[r]?.[2] || '').trim();
+        if (cellVal.startsWith('http://') || cellVal.startsWith('https://') || cellVal.toLowerCase().includes('drive.google')) {
+          colCHasDriveLink = true;
+          break;
+        }
+      }
+    }
+
+    // NẾU CỘT C CHỨA DRIVE.GOOGLE.COM -> Chứng tỏ cột C chưa được insert!
+    // Hãy insert ngay cột C để dữ liệu cột C cũ thành cột D mới, và đặt tên cột C là "Link rut gon"
+    if (colCHasDriveLink && !isColCAlreadyShortLink) {
+      const newSheet2D: any[][] = [];
+
+      for (let r = 0; r < sheet2D.length; r++) {
+        const row = sheet2D[r] || [];
+        const colA = row[0] !== undefined ? row[0] : '';
+        const colB = row[1] !== undefined ? row[1] : '';
+        const oldColC = row[2] !== undefined ? row[2] : '';
+        const rest = row.slice(3);
+
+        if (r === headerRowIdx) {
+          // Header: Cột A (HoTen), Cột B (SoDT), Cột C mới ("Link rut gon"), Cột D mới ("Link goc")
+          newSheet2D.push([colA, colB, 'Link rut gon', oldColC || 'Link goc', ...rest]);
+        } else if (r > headerRowIdx) {
+          // Data: Cột A (HoTen), Cột B (SoDT), Cột C mới (để trống ""), Cột D mới (link gốc)
+          newSheet2D.push([colA, colB, '', oldColC, ...rest]);
+        } else {
+          newSheet2D.push(row);
+        }
+      }
+
+      // Cập nhật lại sheet2D trong input object nếu có
+      if (typeof input === 'object' && !Array.isArray(input)) {
+        input.sheet2D = newSheet2D;
+      }
+
+      const items: LinkItem[] = [];
+      let itemIndex = 0;
+
+      for (let r = headerRowIdx + 1; r < newSheet2D.length; r++) {
+        const row = newSheet2D[r];
+        if (!row || row.length === 0) continue;
+
+        const hoTen = String(row[0] !== undefined ? row[0] : '').trim();
+        const rawPhone = String(row[1] !== undefined ? row[1] : '').trim();
+        const shortLink = String(row[2] !== undefined ? row[2] : '').trim();
+        const originalLink = String(row[3] !== undefined ? row[3] : '').trim();
+
+        if (!hoTen && !rawPhone && !originalLink) continue;
+
+        const phoneValidation = formatPhone(rawPhone);
+        itemIndex++;
+
+        items.push({
+          id: `link-${itemIndex}-${Date.now().toString(36)}`,
+          originalRowIndex: itemIndex,
+          hoTen,
+          rawPhone,
+          formattedPhone: phoneValidation.formatted,
+          carrier: phoneValidation.carrier,
+          isValidPhone: phoneValidation.isValid,
+          phoneError: phoneValidation.error,
+          originalLink,
+          shortLink,
+          status: shortLink ? 'success' : 'pending',
+          selected: false,
+        });
+      }
+
+      const result = items as LinkItem[] & { insertedColC?: boolean };
+      result.insertedColC = true;
+      return result;
+    }
+
+    // NẾU CỘT C ĐÃ CÓ "Link rut gon" (được để trống hoặc đã có link rút gọn): thực hiện bình thường
+    const items: LinkItem[] = [];
+    let itemIndex = 0;
+
+    for (let r = headerRowIdx + 1; r < sheet2D.length; r++) {
+      const row = sheet2D[r];
+      if (!row || row.length === 0) continue;
+
+      const hoTen = String(row[0] !== undefined ? row[0] : '').trim();
+      const rawPhone = String(row[1] !== undefined ? row[1] : '').trim();
+
+      let shortLink = '';
+      let originalLink = '';
+
+      if (isColCAlreadyShortLink || row.length >= 4) {
+        shortLink = String(row[2] !== undefined ? row[2] : '').trim();
+        originalLink = String(row[3] !== undefined ? row[3] : '').trim();
+      } else {
+        originalLink = String(row[2] !== undefined ? row[2] : '').trim();
+      }
+
+      if (!hoTen && !rawPhone && !originalLink) continue;
+
+      const phoneValidation = formatPhone(rawPhone);
+      itemIndex++;
+
+      items.push({
+        id: `link-${itemIndex}-${Date.now().toString(36)}`,
+        originalRowIndex: itemIndex,
+        hoTen,
+        rawPhone,
+        formattedPhone: phoneValidation.formatted,
+        carrier: phoneValidation.carrier,
+        isValidPhone: phoneValidation.isValid,
+        phoneError: phoneValidation.error,
+        originalLink,
+        shortLink,
+        status: shortLink ? 'success' : 'pending',
+        selected: false,
+      });
+    }
+
+    if (items.length > 0) {
+      const result = items as LinkItem[] & { insertedColC?: boolean };
+      result.insertedColC = false;
+      return result;
+    }
+  }
+
+  // 2. Fallback sang fallbackObjects nếu không có sheet2D
+  const items: LinkItem[] = fallbackObjects.map((row, index) => {
     const nameKey = findKey(row, ['HoTen', 'Họ tên', 'Họ và tên', 'Tên', 'FullName', 'Name', 'NguoiNhan']) || '';
-    // Tìm cột Số điện thoại
     const phoneKey = findKey(row, ['SoDT', 'SĐT', 'Số ĐT', 'Điện thoại', 'DienThoai', 'SDT', 'Phone', 'Mobile']) || '';
-    // Tìm cột Link
-    const linkKey = findKey(row, ['Link goc', 'Link gốc', 'Link', 'LinkDrive', 'GoogleDrive', 'URL', 'LinkRutGon', 'Linh']) || '';
+    const shortKey = findKey(row, ['Link rut gon', 'Link rút gọn', 'LinkRutGon', 'ShortLink', 'Link_SMS']) || '';
+    const linkKey = findKey(row, ['Link goc', 'Link gốc', 'Link', 'LinkDrive', 'GoogleDrive', 'URL', 'Linh']) || '';
 
     const hoTen = nameKey && row[nameKey] ? String(row[nameKey]).trim() : '';
     const rawPhone = phoneKey && row[phoneKey] ? String(row[phoneKey]).trim() : '';
+    const shortLink = shortKey && row[shortKey] ? String(row[shortKey]).trim() : '';
     const originalLink = linkKey && row[linkKey] ? String(row[linkKey]).trim() : '';
 
     const phoneValidation = formatPhone(rawPhone);
@@ -104,11 +287,15 @@ export function mapRawToLinkItems(rawRows: any[]): LinkItem[] {
       isValidPhone: phoneValidation.isValid,
       phoneError: phoneValidation.error,
       originalLink,
-      shortLink: '',
-      status: 'pending',
+      shortLink,
+      status: shortLink ? 'success' : 'pending',
       selected: false,
     };
   });
+
+  const result = items as LinkItem[] & { insertedColC?: boolean };
+  result.insertedColC = false;
+  return result;
 }
 
 /**
@@ -568,32 +755,38 @@ export function exportSingleCarrierExcel({
 
 /**
  * Tải file Excel mẫu cho chức năng Rút gọn link
+ * 4 cột chuẩn: HoTen, SoDT, Link rut gon, Link goc
  */
 export function downloadLinkSampleTemplate() {
   const sampleData = [
     {
       HoTen: 'Nguyễn Văn An',
       SoDT: '0912345678',
+      'Link rut gon': '',
       'Link goc': 'https://drive.google.com/file/d/1a2b3c4d5e6f7g8h9i-benh-an-01/view?usp=sharing',
     },
     {
       HoTen: 'Trần Thị Mai',
       SoDT: '0987654321',
+      'Link rut gon': '',
       'Link goc': 'https://drive.google.com/file/d/1xYzAbCdEfGhIjKlMn-xet-nghiem-02/view?usp=sharing',
     },
     {
       HoTen: 'Lê Hoàng Long',
       SoDT: '0903112233',
+      'Link rut gon': '',
       'Link goc': 'https://drive.google.com/file/d/1LongLeFileNinhThuanHospital2026/view?usp=sharing',
     },
     {
       HoTen: 'Phạm Thị Thảo',
       SoDT: '0922334455',
+      'Link rut gon': '',
       'Link goc': 'https://drive.google.com/drive/folders/1FolderVaccineBVDKNinhThuan?usp=sharing',
     },
     {
       HoTen: 'Đỗ Minh Trí (SĐT thiếu số)',
       SoDT: '09123456',
+      'Link rut gon': '',
       'Link goc': 'https://drive.google.com/file/d/1testError/view',
     },
   ];
