@@ -163,7 +163,7 @@ export default function App() {
 
         addToast({
           type: 'success',
-          title: `Đã nạp file Excel (Đợt #${currentBatch} trong ngày)`,
+          title: `Đã nạp file Excel (Lần 1${currentBatch} trong ngày)`,
           message: `Đã nạp ${mapped.length} dòng dữ liệu. Tên file SMS xuất ra: ${getCarrierFileName('VinaPhone', currentBatch)}, ${getCarrierFileName('MobiFone', currentBatch)}, ${getCarrierFileName('Viettel', currentBatch)}, ${getCarrierFileName('Vietnamobile', currentBatch)}.`,
         });
       } else if (activeTab === 'vaccine') {
@@ -180,7 +180,7 @@ export default function App() {
 
         addToast({
           type: 'success',
-          title: `Đã nạp file Excel (Đợt #${currentBatch} trong ngày)`,
+          title: `Đã nạp file Excel (Lần ${currentBatch} trong ngày)`,
           message: `Đã nạp ${mapped.length} dòng tiêm chủng. Tên file SMS xuất ra: ${getCarrierFileName('VinaPhone', currentBatch)}, ${getCarrierFileName('MobiFone', currentBatch)}, ${getCarrierFileName('Viettel', currentBatch)}, ${getCarrierFileName('Vietnamobile', currentBatch)}.`,
         });
       }
