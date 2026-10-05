@@ -69,29 +69,29 @@ export function resetDailyBatch(tab: 'link' | 'vaccine'): number {
 
 /**
  * Quy tắc đặt tên file theo nhà mạng và số lượt tải trong ngày:
- * - Lần 1: 1.xlsx (Vina), 2.xlsx (Mobi), 3.xlsx (Viettel), 4.xlsx (VNM)
- * - Lần 2: 11.xlsx (Vina), 22.xlsx (Mobi), 33.xlsx (Viettel), 44.xlsx (VNM)
- * - Lần 3: 111.xlsx (Vina), 222.xlsx (Mobi), 333.xlsx (Viettel), 444.xlsx (VNM)
- * - Lần N: lặp lại chữ số N lần để tránh trùng lặp
+ * - Lần 1: 1_vn.xlsx (Vina), 2_mb.xlsx (Mobi), 3_vt.xlsx (Viettel), 4_vnmb.xlsx (VNM)
+ * - Lần 2: 11_vn.xlsx (Vina), 22_mb.xlsx (Mobi), 33_vt.xlsx (Viettel), 44_vnmb.xlsx (VNM)
+ * - Lần 3: 111_vn.xlsx (Vina), 222_mb.xlsx (Mobi), 333_vt.xlsx (Viettel), 444_vnmb.xlsx (VNM)
+ * - Lần N: lặp lại chữ số N lần kèm đuôi viết tắt nhà mạng
  */
 export function getCarrierFileName(carrier: Carrier, batchCount: number = 1): string {
   const safeCount = Math.max(1, batchCount);
   switch (carrier) {
     case 'VinaPhone':
-      return `${'1'.repeat(safeCount)}.xlsx`;
+      return `${'1'.repeat(safeCount)}_vn.xlsx`;
     case 'MobiFone':
-      return `${'2'.repeat(safeCount)}.xlsx`;
+      return `${'2'.repeat(safeCount)}_mb.xlsx`;
     case 'Viettel':
-      return `${'3'.repeat(safeCount)}.xlsx`;
+      return `${'3'.repeat(safeCount)}_vt.xlsx`;
     case 'Vietnamobile':
-      return `${'4'.repeat(safeCount)}.xlsx`;
+      return `${'4'.repeat(safeCount)}_vnmb.xlsx`;
     case 'Khác':
     case 'Gmobile':
     case 'Itelecom':
     case 'Wintel':
-      return `${'5'.repeat(safeCount)}_Khac.xlsx`;
+      return `${'5'.repeat(safeCount)}_khac.xlsx`;
     case 'Không hợp lệ':
-      return `0_Loi.xlsx`;
+      return `0_loi.xlsx`;
     default:
       return `${carrier}.xlsx`;
   }
