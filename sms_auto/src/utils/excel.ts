@@ -688,15 +688,15 @@ export function generateLinkCarrierBuffers(
  * Bảng mã ánh xạ tên file chuẩn SMS của các nhà mạng mặc định
  */
 export const CARRIER_FILE_MAP: Record<Carrier, string> = {
-  VinaPhone: '1.xlsx',
-  MobiFone: '2.xlsx',
-  Viettel: '3.xlsx',
-  Vietnamobile: '4.xlsx',
-  Gmobile: '5_Khac.xlsx',
-  Itelecom: '5_Khac.xlsx',
-  Wintel: '5_Khac.xlsx',
-  Khác: '5_Khac.xlsx',
-  'Không hợp lệ': '0_Loi.xlsx',
+  VinaPhone: '1_vn.xlsx',
+  MobiFone: '2_mb.xlsx',
+  Viettel: '3_vt.xlsx',
+  Vietnamobile: '4_vnmb.xlsx',
+  Gmobile: '5_khac.xlsx',
+  Itelecom: '5_khac.xlsx',
+  Wintel: '5_khac.xlsx',
+  Khác: '5_khac.xlsx',
+  'Không hợp lệ': '0_loi.xlsx',
 };
 
 /**
