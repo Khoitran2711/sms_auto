@@ -483,7 +483,7 @@ export const LinkShortenerTab: React.FC<LinkShortenerTabProps> = ({
       addToast({
         type: 'success',
         title: 'Đã xuất file ZIP thành công',
-        message: `Gói ZIP ${batchCount} gồm các file (${getCarrierFileName('VinaPhone', batchCount)}, ${getCarrierFileName('Viettel', batchCount)}...) mỗi file gồm 2 cột chuẩn SMS.`,
+        message: `Gói ZIP đợt #${batchCount} gồm các file (${getCarrierFileName('VinaPhone', batchCount)}, ${getCarrierFileName('Viettel', batchCount)}...) mỗi file gồm 2 cột chuẩn SMS.`,
       });
     } catch (err: any) {
       addToast({
@@ -516,6 +516,29 @@ export const LinkShortenerTab: React.FC<LinkShortenerTabProps> = ({
       type: 'success',
       title: 'Đã xuất file Excel',
       message: 'File Excel tổng hợp (2 cột chuẩn: Số điện thoại và Link đã rút gọn) đã được lưu.',
+    });
+  };
+
+  // Export Full Excel 4 cột chuẩn: HoTen, SoDT, Link rut gon, Link goc
+  const handleExportFullExcel = () => {
+    if (items.length === 0) return;
+    const exportRows = items.map((item) => ({
+      HoTen: item.hoTen,
+      SoDT: item.rawPhone || item.formattedPhone,
+      'Link rut gon': item.shortLink || '',
+      'Link goc': item.originalLink,
+    }));
+
+    exportExcelFile(
+      exportRows,
+      `BVDK_NinhThuan_Link_Rut_Gon_${new Date().toISOString().slice(0, 10)}.xlsx`,
+      'DanhSach'
+    );
+
+    addToast({
+      type: 'success',
+      title: 'Đã xuất file Excel đầy đủ',
+      message: 'File Excel 4 cột chuẩn (A: HoTen, B: SoDT, C: Link rut gon, D: Link goc) đã được tải xuống.',
     });
   };
 
@@ -673,9 +696,9 @@ export const LinkShortenerTab: React.FC<LinkShortenerTabProps> = ({
           {/* Daily batch badge */}
           <div
             className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-amber-50/90 dark:bg-amber-950/40 border border-amber-200/90 dark:border-amber-900/60 text-xs text-amber-900 dark:text-amber-200"
-            title={`Đợt đưa bảng lên lần ${batchCount} trong ngày. Tên file quy chuẩn: ${getCarrierFileName('VinaPhone', batchCount)}, ${getCarrierFileName('MobiFone', batchCount)}, ${getCarrierFileName('Viettel', batchCount)}, ${getCarrierFileName('Vietnamobile', batchCount)}`}
+            title={`Đợt đưa bảng lên lần #${batchCount} trong ngày. Tên file quy chuẩn: ${getCarrierFileName('VinaPhone', batchCount)}, ${getCarrierFileName('MobiFone', batchCount)}, ${getCarrierFileName('Viettel', batchCount)}, ${getCarrierFileName('Vietnamobile', batchCount)}`}
           >
-            <span className="font-semibold text-amber-800 dark:text-amber-300">Tên File Lần {batchCount}:</span>
+            <span className="font-semibold text-amber-800 dark:text-amber-300">Đợt #{batchCount}:</span>
             <span className="font-mono font-medium text-[11px] text-amber-950 dark:text-amber-100">
               {getCarrierFileName('VinaPhone', batchCount)}, {getCarrierFileName('MobiFone', batchCount)}, {getCarrierFileName('Viettel', batchCount)}
             </span>
@@ -729,6 +752,16 @@ export const LinkShortenerTab: React.FC<LinkShortenerTabProps> = ({
           >
             <Archive className="h-3.5 w-3.5" />
             <span>Xuất file ZIP (Theo nhà mạng)</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={handleExportFullExcel}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slate-700 dark:text-slate-200 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-md transition-colors cursor-pointer border border-slate-200 dark:border-slate-700"
+            title="Xuất file Excel đầy đủ gồm 4 cột chuẩn: HoTen, SoDT, Link rut gon, Link goc"
+          >
+            <Download className="h-3.5 w-3.5 text-slate-600 dark:text-slate-400" />
+            <span>Xuất Excel đầy đủ (4 cột)</span>
           </button>
         </div>
       </div>
