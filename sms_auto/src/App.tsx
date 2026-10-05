@@ -150,7 +150,7 @@ export default function App() {
       }
 
       if (activeTab === 'link') {
-        const mapped = mapRawToLinkItems(parsed.objects);
+        const mapped = mapRawToLinkItems(parsed);
         setLinkItems(mapped);
         setLinkFileName(file.name);
         setCarrierFilter('all');
