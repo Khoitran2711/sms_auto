@@ -569,25 +569,25 @@ export const LinkShortenerTab: React.FC<LinkShortenerTabProps> = ({
 
   return (
     <div className="space-y-4">
-      {/* Sub-mode switcher - Căn chỉnh ở giữa trang, phân chia đều 2 nút lớn và rõ ràng */}
+      {/* Sub-mode switcher - Căn chỉnh ở giữa trang, phân chia đều 2 nút lớn với điểm nhấn màu sắc nổi bật */}
       <div className="p-1.5 sm:p-2 bg-slate-100/90 dark:bg-slate-800/60 rounded-2xl border border-slate-200/90 dark:border-slate-700 shadow-2xs">
         <div className="max-w-2xl mx-auto grid grid-cols-2 gap-2 sm:gap-3">
           <button
             type="button"
             onClick={() => setSubMode('link_shorten')}
-            className={`flex items-center justify-center gap-2 sm:gap-2.5 px-3 sm:px-5 py-2.5 sm:py-3 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer ${
+            className={`flex items-center justify-center gap-2 sm:gap-2.5 px-3 sm:px-5 py-2.5 sm:py-3 rounded-xl text-xs sm:text-sm transition-all duration-200 cursor-pointer ${
               subMode === 'link_shorten'
-                ? 'bg-white dark:bg-slate-900 text-blue-700 dark:text-blue-400 shadow-xs border border-slate-200/90 dark:border-slate-700 font-bold'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/60 dark:hover:bg-slate-800'
+                ? 'bg-gradient-to-r from-blue-600 via-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/25 border border-blue-500/40 ring-2 ring-blue-400/25 font-bold scale-[1.01]'
+                : 'bg-white/80 dark:bg-slate-900/70 text-slate-700 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50/80 dark:hover:bg-blue-950/40 border border-slate-200/90 dark:border-slate-800 hover:border-blue-300 dark:hover:border-blue-800 font-semibold'
             }`}
           >
-            <Link2 className={`h-4.5 w-4.5 shrink-0 ${subMode === 'link_shorten' ? 'text-blue-600 dark:text-blue-400' : 'text-slate-500'}`} />
+            <Link2 className={`h-4.5 w-4.5 shrink-0 ${subMode === 'link_shorten' ? 'text-white' : 'text-blue-600 dark:text-blue-400'}`} />
             <span className="truncate">Rút gọn link</span>
             <span
-              className={`shrink-0 px-2 py-0.5 rounded-full text-xs font-bold font-mono ${
+              className={`shrink-0 px-2 py-0.5 rounded-full text-xs font-bold font-mono transition-colors ${
                 subMode === 'link_shorten'
-                  ? 'bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300'
-                  : 'bg-slate-200/80 dark:bg-slate-700 text-slate-700 dark:text-slate-300'
+                  ? 'bg-white/20 text-white border border-white/20 backdrop-blur-xs'
+                  : 'bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300'
               }`}
             >
               {items.length}
@@ -597,19 +597,19 @@ export const LinkShortenerTab: React.FC<LinkShortenerTabProps> = ({
           <button
             type="button"
             onClick={() => setSubMode('sms_convert')}
-            className={`flex items-center justify-center gap-2 sm:gap-2.5 px-3 sm:px-5 py-2.5 sm:py-3 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer ${
+            className={`flex items-center justify-center gap-2 sm:gap-2.5 px-3 sm:px-5 py-2.5 sm:py-3 rounded-xl text-xs sm:text-sm transition-all duration-200 cursor-pointer ${
               subMode === 'sms_convert'
-                ? 'bg-white dark:bg-slate-900 text-blue-700 dark:text-blue-400 shadow-xs border border-slate-200/90 dark:border-slate-700 font-bold'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/60 dark:hover:bg-slate-800'
+                ? 'bg-gradient-to-r from-purple-600 via-violet-600 to-indigo-600 text-white shadow-md shadow-purple-500/25 border border-purple-500/40 ring-2 ring-purple-400/25 font-bold scale-[1.01]'
+                : 'bg-white/80 dark:bg-slate-900/70 text-slate-700 dark:text-slate-300 hover:text-purple-600 dark:hover:text-purple-400 hover:bg-purple-50/80 dark:hover:bg-purple-950/40 border border-slate-200/90 dark:border-slate-800 hover:border-purple-300 dark:hover:border-purple-800 font-semibold'
             }`}
           >
-            <Sparkles className={`h-4.5 w-4.5 shrink-0 ${subMode === 'sms_convert' ? 'text-blue-600 dark:text-blue-400' : 'text-slate-500'}`} />
+            <Sparkles className={`h-4.5 w-4.5 shrink-0 ${subMode === 'sms_convert' ? 'text-amber-300' : 'text-purple-600 dark:text-purple-400'}`} />
             <span className="truncate">Chuyển đổi khác</span>
             <span
-              className={`shrink-0 px-2 py-0.5 rounded-full text-xs font-bold font-mono ${
+              className={`shrink-0 px-2 py-0.5 rounded-full text-xs font-bold font-mono transition-colors ${
                 subMode === 'sms_convert'
-                  ? 'bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300'
-                  : 'bg-slate-200/80 dark:bg-slate-700 text-slate-700 dark:text-slate-300'
+                  ? 'bg-white/20 text-white border border-white/20 backdrop-blur-xs'
+                  : 'bg-purple-100 text-purple-700 dark:bg-purple-950 dark:text-purple-300'
               }`}
             >
               {currentSmsItems.length}
@@ -623,7 +623,6 @@ export const LinkShortenerTab: React.FC<LinkShortenerTabProps> = ({
           smsItems={currentSmsItems}
           setSmsItems={updateSmsItems}
           addToast={addToast}
-          onSwitchToLinkShortener={() => setSubMode('link_shorten')}
         />
       ) : items.length === 0 ? (
         <div className="rounded-2xl border border-slate-200/90 dark:border-slate-800/90 bg-white dark:bg-[#0e1726] p-12 sm:p-16 text-center shadow-2xs">
@@ -633,17 +632,9 @@ export const LinkShortenerTab: React.FC<LinkShortenerTabProps> = ({
           <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white mb-2">
             Chưa có dữ liệu danh sách Link
           </h3>
-          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 max-w-md mx-auto mb-4">
+          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 max-w-md mx-auto">
             Kéo thả file Excel chứa link hồ sơ bệnh nhân vào đây, hoặc chuyển sang lựa chọn Chuyển đổi khác.
           </p>
-          <button
-            type="button"
-            onClick={() => setSubMode('sms_convert')}
-            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold text-blue-700 bg-blue-50 dark:bg-blue-950/40 rounded-lg hover:bg-blue-100 cursor-pointer"
-          >
-            <Sparkles className="h-3.5 w-3.5 text-blue-600" />
-            <span>Mở Chuyển đổi khác</span>
-          </button>
         </div>
       ) : (
         <div className="space-y-4">
