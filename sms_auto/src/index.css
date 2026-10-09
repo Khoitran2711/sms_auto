@@ -40,6 +40,92 @@
   animation: spinSlow 8s linear infinite;
 }
 
+/* Header dynamic animations */
+@keyframes gradientFlow {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.animate-gradient-flow {
+  background-size: 200% 200%;
+  animation: gradientFlow 4s ease infinite;
+}
+
+@keyframes lightSweep {
+  0% {
+    transform: translateX(-150%) skewX(-20deg);
+  }
+  40%, 100% {
+    transform: translateX(250%) skewX(-20deg);
+  }
+}
+
+.animate-light-sweep {
+  animation: lightSweep 4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+@keyframes smoothFloatX {
+  0% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(4px);
+  }
+  50% {
+    transform: translateX(8px);
+  }
+  75% {
+    transform: translateX(4px);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+.animate-float-x {
+  animation: smoothFloatX 5s ease-in-out infinite;
+}
+
+@keyframes marqueeLeftToRight {
+  0% {
+    transform: translateX(-12px);
+  }
+  50% {
+    transform: translateX(12px);
+  }
+  100% {
+    transform: translateX(-12px);
+  }
+}
+
+.animate-marquee-subtle {
+  animation: marqueeLeftToRight 7s ease-in-out infinite;
+}
+
+@keyframes titleGlideLeftToRight {
+  0% {
+    transform: translateX(-10px);
+  }
+  50% {
+    transform: translateX(14px);
+  }
+  100% {
+    transform: translateX(-10px);
+  }
+}
+
+.animate-title-slide {
+  animation: titleGlideLeftToRight 6s ease-in-out infinite;
+  will-change: transform;
+}
+
 /* Table rows smooth hover transition */
 table tbody tr {
   transition: background-color 0.15s ease, transform 0.15s ease;
