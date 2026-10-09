@@ -20,7 +20,6 @@ import {
   Edit2,
   Trash2,
   Link2,
-  Sparkles,
 } from 'lucide-react';
 
 interface SmsConvertedSectionProps {
@@ -34,7 +33,6 @@ export const SmsConvertedSection: React.FC<SmsConvertedSectionProps> = ({
   smsItems,
   setSmsItems,
   addToast,
-  onSwitchToLinkShortener,
 }) => {
   // Filters
   const [filterPhone, setFilterPhone] = useState('');
@@ -169,19 +167,9 @@ export const SmsConvertedSection: React.FC<SmsConvertedSectionProps> = ({
         <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white mb-2">
           Chưa có dữ liệu danh sách Link
         </h3>
-        <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 max-w-md mx-auto mb-4">
+        <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 max-w-md mx-auto">
           Kéo thả file Excel chứa link hồ sơ bệnh nhân vào đây, hoặc chuyển sang lựa chọn Chuyển đổi khác.
         </p>
-        {onSwitchToLinkShortener && (
-          <button
-            type="button"
-            onClick={onSwitchToLinkShortener}
-            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold text-blue-700 bg-blue-50 dark:bg-blue-950/40 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/40 cursor-pointer"
-          >
-            <Sparkles className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
-            <span>Mở Rút gọn link</span>
-          </button>
-        )}
       </div>
     );
   }
