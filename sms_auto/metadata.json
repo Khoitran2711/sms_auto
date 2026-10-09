@@ -1,6 +1,0 @@
-{
-  "name": "Hệ thống Xử lý Dữ liệu SMS – Bệnh viện Đa khoa Ninh Thuận",
-  "description": "Ứng dụng xử lý dữ liệu SMS, rút gọn link Google Drive, chuẩn hóa SĐT, phân loại nhà mạng và xuất gói ZIP Excel cho hệ thống tiêm chủng Vaccine.",
-  "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
-}
