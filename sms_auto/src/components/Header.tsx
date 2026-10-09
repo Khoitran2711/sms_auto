@@ -20,34 +20,59 @@ export const Header: React.FC<HeaderProps> = ({
     <header className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/95 backdrop-blur-sm dark:border-slate-800/80 dark:bg-[#0e1726]/95 transition-colors">
       <div className="mx-auto flex w-full max-w-[1600px] items-center justify-between px-4 sm:px-6 lg:px-8 py-3">
         {/* Brand identity */}
-        <div className="flex items-center gap-3">
-          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-white p-0.5 border border-slate-200/90 dark:border-slate-700 shadow-2xs overflow-hidden">
-            <img
-              src="/logoBVT.png"
-              onError={(e) => {
-                const target = e.currentTarget;
-                if (target.src !== 'https://raw.githubusercontent.com/Khoitran2711/ConvertLink/main/logoBVT.png') {
-                  target.src = 'https://raw.githubusercontent.com/Khoitran2711/ConvertLink/main/logoBVT.png';
-                }
-              }}
-              alt="Logo Bệnh viện Đa khoa Ninh Thuận"
-              className="h-full w-full object-contain"
-              loading="eager"
-            />
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="text-sm sm:text-base font-bold tracking-tight text-slate-900 dark:text-white">
-                Bệnh viện Đa khoa Ninh Thuận
-              </span>
-              <span className="hidden md:inline-block text-slate-300 dark:text-slate-700">/</span>
-              <span className="hidden md:inline-block text-xs font-medium text-slate-500 dark:text-slate-400">
-                Cổng Chuyển đổi & Xử lý SMS
-              </span>
+        <div className="flex items-center gap-3 sm:gap-4">
+          <div className="relative group shrink-0">
+            {/* Ambient subtle glow */}
+            <div className="absolute -inset-1 rounded-2xl bg-gradient-to-r from-blue-600 via-teal-500 to-indigo-600 opacity-25 blur-xs group-hover:opacity-70 transition-all duration-300" />
+            <div className="relative flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-xl bg-white p-1 border border-slate-200/90 dark:border-slate-700 shadow-md ring-2 ring-blue-500/20 dark:ring-blue-400/30 group-hover:scale-105 group-hover:rotate-1 transition-all duration-300 overflow-hidden">
+              <img
+                src="/logoBVT.png"
+                onError={(e) => {
+                  const target = e.currentTarget;
+                  if (target.src !== 'https://raw.githubusercontent.com/Khoitran2711/ConvertLink/main/logoBVT.png') {
+                    target.src = 'https://raw.githubusercontent.com/Khoitran2711/ConvertLink/main/logoBVT.png';
+                  }
+                }}
+                alt="Logo Bệnh viện Đa khoa Ninh Thuận"
+                className="h-full w-full object-contain drop-shadow-xs"
+                loading="eager"
+              />
             </div>
-            <p className="text-[11px] text-slate-500 dark:text-slate-400 md:hidden">
-              Cổng Chuyển đổi & Xử lý SMS
-            </p>
+          </div>
+
+          <div className="flex flex-col justify-center">
+            {/* Main title & Subtitle for Desktop and Responsive */}
+            <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1">
+              {/* Tiêu đề Bệnh viện Đa khoa Ninh Thuận - to hơn, tự động chạy từ trái sang phải sinh động */}
+              <div className="relative inline-flex items-center overflow-hidden py-0.5 px-1.5 rounded-lg animate-title-slide">
+                {/* Vệt sáng quét qua mượt mà từ trái sang phải */}
+                <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/55 dark:via-cyan-300/25 to-transparent animate-light-sweep pointer-events-none" />
+                <span className="text-base sm:text-lg md:text-xl lg:text-[22px] font-black tracking-tight bg-gradient-to-r from-blue-800 via-indigo-700 to-sky-600 dark:from-blue-300 dark:via-indigo-200 dark:to-cyan-300 bg-[length:200%_auto] bg-clip-text text-transparent animate-gradient-flow drop-shadow-xs whitespace-nowrap">
+                  Bệnh viện Đa khoa Ninh Thuận
+                </span>
+              </div>
+
+              {/* Cổng Chuyển đổi & Xử lý SMS - to hơn, có animation trượt nhẹ tự động trái sang phải & vệt sáng shimmer */}
+              <div className="hidden md:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-blue-50/80 dark:bg-slate-800/80 border border-blue-200/70 dark:border-blue-900/50 shadow-2xs relative overflow-hidden animate-marquee-subtle">
+                {/* Vệt sáng quét qua từ trái sang phải */}
+                <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/60 dark:via-cyan-400/20 to-transparent animate-light-sweep pointer-events-none" />
+                <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+                <span className="text-xs sm:text-sm font-bold text-blue-900 dark:text-cyan-300 tracking-wide whitespace-nowrap">
+                  Cổng Chuyển đổi & Xử lý SMS
+                </span>
+              </div>
+            </div>
+
+            {/* Mobile subtitle - Hiển thị đẹp mắt trên màn hình điện thoại với animation chạy nhẹ nhàng */}
+            <div className="md:hidden mt-0.5 flex items-center gap-1.5 overflow-hidden">
+              <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-blue-50/90 dark:bg-slate-800/90 border border-blue-200/60 dark:border-blue-900/40 relative overflow-hidden animate-marquee-subtle">
+                <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/50 dark:via-cyan-400/20 to-transparent animate-light-sweep pointer-events-none" />
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+                <span className="text-[12px] font-bold text-blue-900 dark:text-cyan-300 tracking-tight whitespace-nowrap">
+                  Cổng Chuyển đổi & Xử lý SMS
+                </span>
+              </div>
+            </div>
           </div>
         </div>
 
